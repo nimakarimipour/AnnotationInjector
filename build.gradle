@@ -11,4 +11,5 @@ repositories {
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
+    compile group: 'org.openrewrite.maven', name: 'rewrite-maven-plugin', version: '1.1.0'
 }
