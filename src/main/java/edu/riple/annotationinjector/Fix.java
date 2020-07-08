@@ -38,24 +38,6 @@ public class Fix {
         }
     }
 
-    enum LOCATION {
-        CLASS_FIELD("CLASS_FIELD"),
-        METHOD_PARAM("METHOD_PARAM"),
-        METHOD_RETURN("METHOD_RETURN"),
-        METHOD_LOCAL_VAR("METHOD_LOCAL_VAR");
-        public final String label;
-
-        LOCATION(String label) {
-            this.label = label;
-        }
-
-        @Override
-        public String toString() {
-            return "Kind{" + "label='" + label + '\'' + '}';
-        }
-    }
-
-
     public Fix(
             String annotation,
             String method,
