@@ -26,7 +26,7 @@ public class Injector{
     public boolean start() {
         ArrayList<J.CompilationUnit> trees = (ArrayList<J.CompilationUnit>) parser.parse(paths);
         for (J.CompilationUnit unit : trees){
-            System.out.println(unit.getImports());
+            System.out.println(unit.getImports().get(0).print());
         }
         return true;
     }
