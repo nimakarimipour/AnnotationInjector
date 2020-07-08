@@ -10,14 +10,12 @@ import java.io.File;
 public class BasicTest {
 
     Injector injector;
-    String srcPath = "/Users/nima/Desktop/Super.java";
-    String fixPath = "/Users/nima/Desktop/fixes.java";
+    String fixPath = "/Users/nima/Developer/AnnotationInjector/testfiles/fixes.json";
 
     @Before
     public void setup(){
 
         injector = Injector.builder()
-                .addPath(srcPath)
                 .setFixesJsonFilePath(fixPath)
                 .build();
     }
