@@ -6,6 +6,7 @@ import org.openrewrite.java.tree.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings({"UnusedVariable", "StringSplitter"}) //todo: Remove this later, this class is still under construction
 public class ASTHelpers {
 
     public static J.ClassDecl findClassDecl(J.CompilationUnit tree, String fullName){

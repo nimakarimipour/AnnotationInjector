@@ -1,10 +1,10 @@
-import edu.riple.annotationinjector.Injector;
+package edu.riple.annotationinjector;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-import java.io.File;
 
 @RunWith(JUnit4.class)
 public class BasicTest {
@@ -14,10 +14,7 @@ public class BasicTest {
 
     @Before
     public void setup(){
-
-        injector = Injector.builder()
-                .setFixesJsonFilePath(fixPath)
-                .build();
+        injector = Injector.builder().setFixesJsonFilePath(fixPath).build();
     }
 
     @Test

@@ -19,6 +19,7 @@ public class AddMethodReturnAnnotation extends Refactor {
     @Override
     public JavaRefactorVisitor build() {
         J.ClassDecl classDecl = ASTHelpers.findClassDecl(tree, fix.className);
+        if(classDecl == null) throw new RuntimeException("Could not find the class associated to fix: " + fix);
         J.MethodDecl methodDecl = ASTHelpers.findMethodDecl(classDecl, fix.method);
         if(methodDecl == null) throw new RuntimeException("Could not find the method associated to fix: " + fix);
         return new AddAnnotation.Scoped(methodDecl, fix.annotation);
