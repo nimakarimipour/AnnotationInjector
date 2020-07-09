@@ -5,14 +5,14 @@ import org.json.simple.JSONObject;
 import java.util.Objects;
 
 public class Fix {
-    final String annotation;
-    final String method;
-    final String param;
-    final String location;
-    final String modifiers;
-    final String className;
-    final String pkg;
-    final String inject;
+    public final String annotation;
+    public final String method;
+    public final String param;
+    public final String location;
+    public final String modifiers;
+    public final String className;
+    public final String pkg;
+    public final String inject;
     String uri;
 
 

@@ -22,6 +22,6 @@ public class BasicTest {
 
     @Test
     public void basicTest(){
-        System.out.println(injector.start());
+        System.out.println("Injector final output: " + injector.start());
     }
 }

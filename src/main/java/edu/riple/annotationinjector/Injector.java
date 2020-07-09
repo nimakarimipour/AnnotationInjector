@@ -1,9 +1,12 @@
 package edu.riple.annotationinjector;
 
+import edu.riple.annotationinjector.visitors.AddMethodReturnAnnotation;
+import edu.riple.annotationinjector.visitors.Refactor;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.openrewrite.Change;
 import org.openrewrite.java.Java8Parser;
 import org.openrewrite.java.JavaParser;
 import org.openrewrite.java.tree.J;
@@ -18,13 +21,11 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 
 
-
-
 public class Injector{
 
-    JavaParser parser;
-    Path fixesFilePath;
-    ArrayList<Fix> fixes;
+    private final JavaParser parser;
+    private Path fixesFilePath;
+    private ArrayList<Fix> fixes;
 
     Injector() {
         parser = Java8Parser.builder().build();
@@ -40,9 +41,9 @@ public class Injector{
         return true;
     }
 
-
     private void applyFixes() {
         J.CompilationUnit tree;
+        Refactor refactor = null;
         for (Fix fix : fixes) {
             tree = getTree(fix);
             switch (fix.location) {
@@ -51,16 +52,15 @@ public class Injector{
                 case "METHOD_PARAM":
                     break;
                 case "METHOD_RETURN":
-                    applyMethodReturn(tree, fix);
+                    refactor = new AddMethodReturnAnnotation(tree, fix);
                     break;
                 default:
                     throw new RuntimeException("Undefined location: " + fix.location);
             }
+            if(refactor == null) throw new RuntimeException("Could not figure out the fix for: " + fix);
+            Change<J.CompilationUnit> changed = tree.refactor().visit(refactor.build()).fix();
+            System.out.println(changed.getFixed().print());
         }
-    }
-
-    private void applyMethodReturn(J.CompilationUnit tree, Fix fix) {
-
     }
 
     private J.CompilationUnit getTree(Fix fix) {
