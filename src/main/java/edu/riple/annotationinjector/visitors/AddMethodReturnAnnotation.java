@@ -18,20 +18,9 @@ public class AddMethodReturnAnnotation extends Refactor {
 
     @Override
     public JavaRefactorVisitor build() {
-        J.MethodDecl finalMethodDecl = null;
-        for(J.ClassDecl classDecl : tree.getClasses()){
-            for(J.MethodDecl methodDecl : classDecl.getMethods()){
-                if(matches(methodDecl)){
-                    finalMethodDecl = methodDecl;
-                    break;
-                }
-            }
-        }
-        return new AddAnnotation.Scoped(finalMethodDecl, fix.annotation);
-    }
-
-    private boolean matches(J.MethodDecl methodDecl){
-        //todo: Fix this to match method signature
-        return true;
+        J.ClassDecl classDecl = ASTHelpers.findClassDecl(tree, fix.className);
+        J.MethodDecl methodDecl = ASTHelpers.findMethodDecl(classDecl, fix.method);
+        if(methodDecl == null) throw new RuntimeException("Could not find the method associated to fix: " + fix);
+        return new AddAnnotation.Scoped(methodDecl, fix.annotation);
     }
 }
