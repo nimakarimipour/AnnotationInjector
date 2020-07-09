@@ -59,8 +59,13 @@ public class Injector{
             }
             if(refactor == null) throw new RuntimeException("Could not figure out the fix for: " + fix);
             Change<J.CompilationUnit> changed = tree.refactor().visit(refactor.build()).fix();
-            System.out.println(changed.getFixed().print());
+            overWriteToFile(changed, fix);
         }
+    }
+
+    private void overWriteToFile(Change<J.CompilationUnit> change, Fix fix){
+        //todo: make it to overwrite file.
+        System.out.println(change.getFixed().print());
     }
 
     private J.CompilationUnit getTree(Fix fix) {
