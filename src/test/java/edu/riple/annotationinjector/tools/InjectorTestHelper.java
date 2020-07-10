@@ -21,10 +21,9 @@ import java.util.stream.Stream;
 @SuppressWarnings("unchecked")
 public class InjectorTestHelper {
 
-    Map<String, String> fileMap;
-    ArrayList<Fix> fixes;
-    Injector injector;
-    String rootPath;
+    private final Map<String, String> fileMap;
+    private final ArrayList<Fix> fixes;
+    private String rootPath;
 
     public InjectorTestHelper() {
         fixes = new ArrayList<>();
@@ -32,25 +31,26 @@ public class InjectorTestHelper {
     }
 
     public InjectorTestHelperOutput addInput(String path, String... input) {
-        if(rootPath == null || rootPath.equals("")) throw new RuntimeException("Root path must be set before calling addInput");
+        if (rootPath == null || rootPath.equals(""))
+            throw new RuntimeException("Root path must be set before calling addInput");
         String inputFile = writeToFile("src/" + path, input);
         return new InjectorTestHelperOutput(this, fileMap, inputFile);
     }
 
     public InjectorTestHelper addFixes(Fix... fixes) {
-        for(Fix f : fixes) f.uri = rootPath.concat("/src/").concat(f.uri);
+        for (Fix f : fixes) f.uri = rootPath.concat("/src/").concat(f.uri);
         this.fixes.addAll(Arrays.asList(fixes));
         return this;
     }
 
-    public InjectorTestHelper setRootPath(String path){
+    public InjectorTestHelper setRootPath(String path) {
         this.rootPath = path;
         makeDirectories();
         return this;
     }
 
     public void start() {
-        this.injector = Injector.builder(Injector.MODE.TEST)
+        Injector injector = Injector.builder(Injector.MODE.TEST)
                 .setFixesJsonFilePath(rootPath + "/fix/fixes.json").build();
         writeFixes();
         injector.start();
@@ -66,14 +66,12 @@ public class InjectorTestHelper {
                                 "\n\nBut found:\n" +
                                 destFile +
                                 "\n");
-//            System.out.println("Expected: " + fileMap.get(key));
-//            System.out.println("Src: " + key);
         }
     }
 
     private void writeFixes() {
         JSONArray array = new JSONArray();
-        for(Fix fix: fixes){
+        for (Fix fix : fixes) {
             array.add(fix.getJson());
         }
         JSONObject obj = new JSONObject();
@@ -83,7 +81,7 @@ public class InjectorTestHelper {
 
     private void makeDirectories() {
         String[] names = {"src", "out", "expected", "fix"};
-        for (String name : names){
+        for (String name : names) {
             String pathToDirectory = rootPath + "/" + name;
             try {
                 Files.createDirectories(Paths.get(pathToDirectory + "/"));
@@ -99,7 +97,7 @@ public class InjectorTestHelper {
         return writeToFile(relativePath, toWrite.toString());
     }
 
-    String writeToFile(String relativePath, String input){
+    String writeToFile(String relativePath, String input) {
         input = input.replace("\\", "");
         relativePath = rootPath.concat("/").concat(relativePath);
         String pathToFileDirectory = relativePath.substring(0, relativePath.lastIndexOf("/"));
@@ -116,10 +114,10 @@ public class InjectorTestHelper {
         }
     }
 
-    private String readFileToString(String path){
+    private String readFileToString(String path) {
         StringBuilder contentBuilder = new StringBuilder();
         try {
-            Stream<String> stream = Files.lines( Paths.get(path), Charset.defaultCharset());
+            Stream<String> stream = Files.lines(Paths.get(path), Charset.defaultCharset());
             stream.forEach(s -> contentBuilder.append(s).append("\n"));
             return contentBuilder.toString();
         } catch (FileNotFoundException ex) {
@@ -144,11 +142,6 @@ public class InjectorTestHelper {
         public InjectorTestHelper expectOutput(String path, String... input) {
             String output = writeToFile("expected/" + path, input);
             map.put(inputFile.replace("src", "out"), output);
-            return injectorTestHelper;
-        }
-
-        public InjectorTestHelper expectUnchanged() {
-            map.put(inputFile, inputFile);
             return injectorTestHelper;
         }
     }

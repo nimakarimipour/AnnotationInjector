@@ -35,9 +35,13 @@ public class Injector{
         TEST
     }
 
-    Injector(MODE mode) {
+    public Injector(MODE mode) {
         this.mode = mode;
         parser = Java8Parser.builder().build();
+    }
+
+    public Injector(){
+        this(MODE.OVERWRITE);
     }
 
     public static InjectorBuilder builder(MODE mode){
