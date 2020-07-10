@@ -74,7 +74,7 @@ public class Injector{
     private void overWriteToFile(Change<J.CompilationUnit> change, Fix fix){
         String path = fix.uri;
         if(mode.equals(MODE.TEST)){
-            path = path.replace("src", "expected");
+            path = path.replace("src", "out");
         }
         String input = change.getFixed().print();
         String pathToFileDirectory = path.substring(0, path.lastIndexOf("/"));

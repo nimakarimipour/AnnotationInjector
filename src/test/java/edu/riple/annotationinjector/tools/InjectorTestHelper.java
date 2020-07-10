@@ -24,12 +24,12 @@ public class InjectorTestHelper {
     String rootPath;
 
     public InjectorTestHelper() {
-        makeDirectories();
         fixes = new ArrayList<>();
         fileMap = new HashMap<>();
     }
 
     public InjectorTestHelperOutput addInput(String path, String... input) {
+        if(rootPath == null || rootPath.equals("")) throw new RuntimeException("Root path must be set before calling addInput");
         String inputFile = writeToFile("src/" + path, input);
         return new InjectorTestHelperOutput(this, fileMap, inputFile);
     }
@@ -42,6 +42,7 @@ public class InjectorTestHelper {
 
     public InjectorTestHelper setRootPath(String path){
         this.rootPath = path;
+        makeDirectories();
         return this;
     }
 
@@ -50,6 +51,7 @@ public class InjectorTestHelper {
                 .setFixesJsonFilePath(rootPath + "/fix/fixes.json").build();
         writeFixes();
         injector.start();
+        //todo: compare
     }
 
     private void writeFixes() {
@@ -65,7 +67,6 @@ public class InjectorTestHelper {
     private void makeDirectories() {
         String[] names = {"src", "out", "expected", "fix"};
         for (String name : names){
-            System.out.println("name: " + name);
             String pathToDirectory = rootPath + "/" + name;
             try {
                 Files.createDirectories(Paths.get(pathToDirectory + "/"));
@@ -111,7 +112,7 @@ public class InjectorTestHelper {
         }
 
         public InjectorTestHelper expectOutput(String path, String... input) {
-            String output = writeToFile("out/" + path, input);
+            String output = writeToFile("expected/" + path, input);
             map.put(inputFile, output);
             return injectorTestHelper;
         }

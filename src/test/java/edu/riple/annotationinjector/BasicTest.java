@@ -10,19 +10,9 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class BasicTest {
 
-    Injector injector;
-    String fixPath = "/Users/nima/Developer/AnnotationInjector/testfiles/fixes.json";
-
     @Before
     public void setup() {
-        injector = Injector.builder(Injector.MODE.OVERWRITE).setFixesJsonFilePath(fixPath).build();
 
-    }
-
-    @Test
-    public void basicTest() {
-        injector.start();
-        System.out.println("Finished");
     }
 
     @Test
