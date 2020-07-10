@@ -1,5 +1,5 @@
 package com.uber;
-import javax.Nullable;
+import javax.annotation.Nullable;
 public class Superb {
    @Nullable
    Object test(boolean flag) {

@@ -1,10 +1,12 @@
 package edu.riple.annotationinjector.tools;
 
+import static org.junit.Assert.fail;
+
 import edu.riple.annotationinjector.Fix;
 import edu.riple.annotationinjector.Injector;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Writer;
 import java.nio.charset.Charset;
@@ -14,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 
 @SuppressWarnings("unchecked")
 public class InjectorTestHelper {
@@ -46,12 +49,26 @@ public class InjectorTestHelper {
         return this;
     }
 
-    public void start(){
+    public void start() {
         this.injector = Injector.builder(Injector.MODE.TEST)
                 .setFixesJsonFilePath(rootPath + "/fix/fixes.json").build();
         writeFixes();
         injector.start();
-        //todo: compare
+        for (String key : fileMap.keySet()) {
+            String srcFile = readFileToString(key);
+            String trimmedSrc = srcFile.replace(" ", "").replace("\n", "");
+            String destFile = readFileToString(fileMap.get(key));
+            String trimmedDest = destFile.replace(" ", "").replace("\n", "");
+            if (!trimmedSrc.equals(trimmedDest))
+                fail(
+                        "\nExpected:\n" +
+                                srcFile +
+                                "\n\nBut found:\n" +
+                                destFile +
+                                "\n");
+//            System.out.println("Expected: " + fileMap.get(key));
+//            System.out.println("Src: " + key);
+        }
     }
 
     private void writeFixes() {
@@ -99,6 +116,19 @@ public class InjectorTestHelper {
         }
     }
 
+    private String readFileToString(String path){
+        StringBuilder contentBuilder = new StringBuilder();
+        try {
+            Stream<String> stream = Files.lines( Paths.get(path), Charset.defaultCharset());
+            stream.forEach(s -> contentBuilder.append(s).append("\n"));
+            return contentBuilder.toString();
+        } catch (FileNotFoundException ex) {
+            throw new RuntimeException("Unable to open file: " + path);
+        } catch (IOException ex) {
+            throw new RuntimeException("Error reading file: " + path);
+        }
+    }
+
     public class InjectorTestHelperOutput {
 
         private final InjectorTestHelper injectorTestHelper;
@@ -113,7 +143,7 @@ public class InjectorTestHelper {
 
         public InjectorTestHelper expectOutput(String path, String... input) {
             String output = writeToFile("expected/" + path, input);
-            map.put(inputFile, output);
+            map.put(inputFile.replace("src", "out"), output);
             return injectorTestHelper;
         }
 
