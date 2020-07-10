@@ -4,6 +4,7 @@ import org.json.simple.JSONObject;
 
 import java.util.Objects;
 
+@SuppressWarnings("unchecked")
 public class Fix {
     public final String annotation;
     public final String method;
@@ -13,7 +14,7 @@ public class Fix {
     public final String className;
     public final String pkg;
     public final String inject;
-    String uri;
+    public String uri;
 
 
     enum KEYS {
@@ -125,5 +126,19 @@ public class Fix {
     public int hashCode() {
         return Objects.hash(
                 annotation, method, param, location, modifiers, className, pkg, inject, uri);
+    }
+
+    public JSONObject getJson() {
+        JSONObject res = new JSONObject();
+        res.put(KEYS.CLASS.label, className);
+        res.put(KEYS.METHOD.label, method);
+        res.put(KEYS.PARAM.label, param);
+        res.put(KEYS.LOCATION.label, location);
+        res.put(KEYS.PKG.label, pkg);
+        res.put(KEYS.ANNOTATION.label, annotation);
+        res.put(KEYS.INJECT.label, inject);
+        res.put(KEYS.MODIFIERS.label, modifiers);
+        res.put(KEYS.URI.label, uri);
+        return res;
     }
 }

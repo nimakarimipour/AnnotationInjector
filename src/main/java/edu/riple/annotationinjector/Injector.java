@@ -14,6 +14,7 @@ import org.openrewrite.java.tree.J;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -27,19 +28,25 @@ public class Injector{
     private final JavaParser parser;
     private Path fixesFilePath;
     private ArrayList<Fix> fixes;
+    private final MODE mode;
 
-    Injector() {
+    public enum MODE{
+        OVERWRITE,
+        TEST
+    }
+
+    Injector(MODE mode) {
+        this.mode = mode;
         parser = Java8Parser.builder().build();
     }
 
-    public static InjectorBuilder builder(){
-        return new InjectorBuilder();
+    public static InjectorBuilder builder(MODE mode){
+        return new InjectorBuilder(mode);
     }
 
-    public boolean start() {
+    public void start() {
         fixes = readFixes();
         applyFixes();
-        return true;
     }
 
     private void applyFixes() {
@@ -65,8 +72,22 @@ public class Injector{
     }
 
     private void overWriteToFile(Change<J.CompilationUnit> change, Fix fix){
-        //todo: make it to overwrite file.
-        System.out.println(change.getFixed().print());
+        String path = fix.uri;
+        if(mode.equals(MODE.TEST)){
+            path = path.replace("src", "expected");
+        }
+        String input = change.getFixed().print();
+        String pathToFileDirectory = path.substring(0, path.lastIndexOf("/"));
+        try {
+            Files.createDirectories(Paths.get(pathToFileDirectory + "/"));
+            try (Writer writer = Files.newBufferedWriter(
+                    Paths.get(path), Charset.defaultCharset())) {
+                writer.write(input);
+                writer.flush();
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Something terrible happened.");
+        }
     }
 
     private J.CompilationUnit getTree(Fix fix) {
@@ -105,14 +126,15 @@ public class Injector{
     public static class InjectorBuilder{
         private final Injector injector;
 
-        public InjectorBuilder(){
-            injector = new Injector();
+        public InjectorBuilder(MODE mode){
+            injector = new Injector(mode);
         }
 
         public InjectorBuilder setFixesJsonFilePath(String path){
             injector.fixesFilePath = Paths.get(path);
             return this;
         }
+
 
         public Injector build(){
             return injector;
