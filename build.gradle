@@ -1,11 +1,13 @@
 plugins {
     id 'java'
+    id 'maven'
 }
 
-group 'org.example'
+group 'edu.ucr.cs.riple'
 version '1.0-SNAPSHOT'
 
 repositories {
+    mavenLocal()
     mavenCentral()
 }
 
