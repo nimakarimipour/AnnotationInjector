@@ -7,6 +7,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.openrewrite.Change;
+import org.openrewrite.java.Java11Parser;
 import org.openrewrite.java.Java8Parser;
 import org.openrewrite.java.JavaParser;
 import org.openrewrite.java.tree.J;
@@ -37,7 +38,8 @@ public class Injector{
 
     public Injector(MODE mode) {
         this.mode = mode;
-        parser = Java8Parser.builder().build();
+        parser = Java11Parser.builder().build();
+
     }
 
     public Injector(){

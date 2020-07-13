@@ -61,6 +61,10 @@ public class Fix {
     }
 
     static Fix createFromJson(JSONObject fix) {
+        String uri = fix.get(KEYS.URI.label).toString();
+        String file = "file:/";
+
+        uri = uri.substring(uri.indexOf(file) + file.length());
         return new Fix(
                 fix.get(KEYS.ANNOTATION.label).toString(),
                 fix.get(KEYS.METHOD.label).toString(),
@@ -69,7 +73,7 @@ public class Fix {
                 fix.get(KEYS.MODIFIERS.label).toString(),
                 fix.get(KEYS.CLASS.label).toString(),
                 fix.get(KEYS.PKG.label).toString(),
-                fix.get(KEYS.URI.label).toString(),
+                uri,
                 fix.get(KEYS.INJECT.label).toString());
     }
 
