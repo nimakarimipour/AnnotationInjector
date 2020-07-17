@@ -63,8 +63,8 @@ public class Fix {
     static Fix createFromJson(JSONObject fix) {
         String uri = fix.get(KEYS.URI.label).toString();
         String file = "file:/";
-
-        uri = uri.substring(uri.indexOf(file) + file.length());
+        if(uri.contains(file))
+            uri = uri.substring(uri.indexOf(file) + file.length());
         return new Fix(
                 fix.get(KEYS.ANNOTATION.label).toString(),
                 fix.get(KEYS.METHOD.label).toString(),

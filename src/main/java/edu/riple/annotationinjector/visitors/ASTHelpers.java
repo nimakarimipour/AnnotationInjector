@@ -1,5 +1,6 @@
 package edu.riple.annotationinjector.visitors;
 
+import edu.riple.annotationinjector.Fix;
 import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.Statement;
 
@@ -18,6 +19,14 @@ public class ASTHelpers {
         return null;
     }
 
+    public static J.MethodDecl findMethodDecl(J.CompilationUnit tree, Fix fix){
+        J.ClassDecl classDecl = ASTHelpers.findClassDecl(tree, fix.className);
+        if(classDecl == null) throw new RuntimeException("Could not find the class associated to fix: " + fix);
+        J.MethodDecl methodDecl = ASTHelpers.findMethodDecl(classDecl, fix.method);
+        if(methodDecl == null) throw new RuntimeException("No method found with signature: " + fix);
+        return methodDecl;
+    }
+
     public static J.MethodDecl findMethodDecl(J.ClassDecl classDecl, String signature){
         for(J.MethodDecl methodDecl : classDecl.getMethods()){
             if(matchesMethodSignature(methodDecl, signature)){
@@ -30,6 +39,7 @@ public class ASTHelpers {
     public static boolean matchesMethodSignature(J.MethodDecl methodDecl, String signature) {
         if(!methodDecl.getSimpleName().equals(signature.substring(0, signature.indexOf("("))))
             return false;
+        System.out.println("Checking with: Passed");
         String[] paramsTypesInSignature = signature.substring(signature.indexOf("("), signature.indexOf(")"))
                 .replace("(", "")
                 .replace(")", "")
@@ -37,13 +47,21 @@ public class ASTHelpers {
         List<Statement> params = methodDecl.getParams().getParams();
         ArrayList<String> paramTypes = new ArrayList<>();
         for (Statement param : params){
-            if(param instanceof J.VariableDecls){
-                paramTypes.add( ((J.VariableDecls) param).getTypeExpr().print());
-            }else throw new RuntimeException("Unknown tree type for method parameter declaration: " + param);
+            if(param instanceof J.VariableDecls)
+                paramTypes.add(getFullNameOfType((J.VariableDecls) param));
+            else throw new RuntimeException("Unknown tree type for method parameter declaration: " + param);
         }
         if(paramTypes.size() != paramsTypesInSignature.length) return false;
-        for(String p : paramsTypesInSignature)
+        for(String p : paramsTypesInSignature) {
             if (!paramTypes.contains(p)) return false;
+        }
         return true;
+    }
+
+    public static String getFullNameOfType(J.VariableDecls variableDecls){
+        if(variableDecls.getTypeExpr().getType() != null){
+            return variableDecls.getTypeExpr().getType().toTypeTree().print();
+        }
+        else return variableDecls.getTypeExpr().print();
     }
 }

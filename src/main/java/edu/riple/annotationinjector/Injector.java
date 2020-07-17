@@ -1,5 +1,6 @@
 package edu.riple.annotationinjector;
 
+import edu.riple.annotationinjector.visitors.AddMethodParamAnnotation;
 import edu.riple.annotationinjector.visitors.AddMethodReturnAnnotation;
 import edu.riple.annotationinjector.visitors.Refactor;
 import org.json.simple.JSONArray;
@@ -62,7 +63,9 @@ public class Injector{
             switch (fix.location) {
                 case "CLASS_FIELD":
                 case "METHOD_LOCAL_VAR":
+                    break;
                 case "METHOD_PARAM":
+                    refactor = new AddMethodParamAnnotation(tree, fix);
                     break;
                 case "METHOD_RETURN":
                     refactor = new AddMethodReturnAnnotation(tree, fix);

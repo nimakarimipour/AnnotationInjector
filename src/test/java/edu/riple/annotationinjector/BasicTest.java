@@ -18,6 +18,7 @@ public class BasicTest {
     @Test
     public void return_nullable_simple() {
         String rootName = "return_nullable_simple";
+
         new InjectorTestHelper()
                 .setRootPath(System.getProperty("user.dir") + "/tests/" + rootName)
                 .addInput(
@@ -42,7 +43,7 @@ public class BasicTest {
                 ).addInput(
                     "com/Superb.java",
                     "package com.uber;",
-                    "public class Superb {",
+                    "public class Superb extends Super {",
                     "   Object test(boolean flag) {",
                     "       return new Object();",
                     "   }",
@@ -52,14 +53,15 @@ public class BasicTest {
                     "com/Superb.java",
                     "package com.uber;",
                     "import javax.annotation.Nullable;",
-                    "public class Superb {",
+                    "public class Superb extends Super{",
                     "   @Nullable",
                     "   Object test(boolean flag) {",
                     "       return new Object();",
                     "   }",
                     "}"
                 )
-                .addFixes(new Fix(
+                .addFixes(
+                        new Fix(
                     "javax.annotation.Nullable",
                     "test(boolean)",
                     "",
@@ -68,8 +70,8 @@ public class BasicTest {
                     "com.uber.Super",
                     "com.uber",
                     "Super.java",
-                    "true"
-                        ),
+                    "true")
+                        ,
                         new Fix(
                     "javax.annotation.Nullable",
                     "test(boolean)",
@@ -81,6 +83,52 @@ public class BasicTest {
                     "com/Superb.java",
                     "true"
                         )
+                ).start();
+    }
+
+    @Test
+    public void add_nullable_param_simple() {
+        String rootName = "add_nullable_param_simple";
+
+        new InjectorTestHelper()
+                .setRootPath(System.getProperty("user.dir") + "/tests/" + rootName)
+                .addInput(
+                        "Super.java",
+                        "package com.uber;",
+                        "import javax.annotation.Nullable;",
+                        "public class Super {",
+                        "   @Nullable Object test(Object flag) {",
+                        "       if(flag == null) {",
+                        "           return new Object();",
+                        "       }",
+                        "       else return new Object();",
+                        "   }",
+                        "}"
+                )
+                .expectOutput(
+                        "Super.java",
+                        "package com.uber;",
+                        "import javax.annotation.Nullable;",
+                        "public class Super {",
+                        "   @Nullable Object test(@Nullable Object flag) {",
+                        "       if(flag == null) {",
+                        "           return new Object();",
+                        "       }",
+                        "       else return new Object();",
+                        "   }",
+                        "}"
+                )
+                .addFixes(
+                        new Fix(
+                                "javax.annotation.Nullable",
+                                "test(java.lang.Object)",
+                                "java.lang.Object",
+                                "METHOD_PARAM",
+                                "",
+                                "com.uber.Super",
+                                "com.uber",
+                                "Super.java",
+                                "true")
                 ).start();
     }
 }
