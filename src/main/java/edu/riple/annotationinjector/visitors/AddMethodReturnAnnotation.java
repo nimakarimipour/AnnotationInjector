@@ -18,6 +18,8 @@ public class AddMethodReturnAnnotation implements Refactor {
 
     @Override
     public JavaRefactorVisitor build() {
-        return new AddAnnotation.Scoped(ASTHelpers.findMethodDecl(tree, fix), fix.annotation);
+        J.MethodDecl methodDecl = ASTHelpers.findMethodDecl(tree, fix);
+        if(methodDecl == null) throw new RuntimeException("No method found with signature: " + fix);
+        return new AddAnnotation.Scoped(methodDecl, fix.annotation);
     }
 }

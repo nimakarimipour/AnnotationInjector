@@ -22,27 +22,26 @@ public class ASTHelpers {
     public static J.MethodDecl findMethodDecl(J.CompilationUnit tree, Fix fix){
         J.ClassDecl classDecl = ASTHelpers.findClassDecl(tree, fix.className);
         if(classDecl == null) throw new RuntimeException("Could not find the class associated to fix: " + fix);
-        J.MethodDecl methodDecl = ASTHelpers.findMethodDecl(classDecl, fix.method);
-        if(methodDecl == null) throw new RuntimeException("No method found with signature: " + fix);
-        return methodDecl;
+        return ASTHelpers.findMethodDecl(classDecl, fix.method);
     }
 
     public static J.MethodDecl findMethodDecl(J.ClassDecl classDecl, String signature){
         for(J.MethodDecl methodDecl : classDecl.getMethods()){
-            if(matchesMethodSignature(methodDecl, signature)) return methodDecl;
+            if(matchesMethodSignature(methodDecl, signature))
+                return methodDecl;
         }
         return null;
     }
 
     public static String makeSignature(J.MethodDecl methodDecl){
-        String signature = methodDecl.getSimpleName();
+        String signature = methodDecl.getSimpleName() + "(";
         List<Statement> params = methodDecl.getParams().getParams();
         for (Statement param : params){
             if(param instanceof J.VariableDecls)
                 signature = signature.concat(getFullNameOfType((J.VariableDecls) param));
             else throw new RuntimeException("Unknown tree type for method parameter declaration: " + param);
         }
-        return signature;
+        return signature + ")";
     }
 
     public static boolean matchesMethodSignature(J.MethodDecl methodDecl, String signature) {
@@ -61,7 +60,9 @@ public class ASTHelpers {
         }
         if(paramTypes.size() != paramsTypesInSignature.length) return false;
         for(String p : paramsTypesInSignature) {
-            if (!paramTypes.contains(p)) return false;
+            String[] names = p.split("\\.");
+            String simpleName = names[names.length - 1];
+            if (!paramTypes.contains(p) && !paramTypes.contains(simpleName)) return false;
         }
         return true;
     }
