@@ -21,7 +21,7 @@ public class AddMethodParamAnnotation implements Refactor {
         J.MethodDecl methodDecl = ASTHelpers.findMethodDecl(tree, fix);
         for (Statement param : methodDecl.getParams().getParams()) {
             if (param instanceof J.VariableDecls) {
-                if (fix.param.equals(ASTHelpers.getFullNameOfType((J.VariableDecls) param)))
+                if (fix.param.equals(((J.VariableDecls) param).getVars().get(0).getSimpleName()))
                     return new AddAnnotation.Scoped(param, fix.annotation);
             } else throw new RuntimeException("Unknown tree type for method parameter declaration: " + param);
         }

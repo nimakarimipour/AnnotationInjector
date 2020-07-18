@@ -38,7 +38,7 @@ public class Injector{
 
     public Injector(MODE mode) {
         this.mode = mode;
-        parser = Java11Parser.builder().build();
+        parser = Java11Parser.builder().relaxedClassTypeMatching(true).build();
 
     }
 

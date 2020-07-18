@@ -79,35 +79,35 @@ public class Fix {
 
     @Override
     public String toString() {
-        return "Fix{"
-                + "annotation='"
+        return "\n  {"
+                + "\n\tannotation='"
                 + annotation
                 + '\''
-                + ", method='"
+                + ", \n\tmethod='"
                 + method
                 + '\''
-                + ", param='"
+                + ", \n\tparam='"
                 + param
                 + '\''
-                + ", location='"
+                + ", \n\tlocation='"
                 + location
                 + '\''
-                + ", modifiers='"
+                + ", \n\tmodifiers='"
                 + modifiers
                 + '\''
-                + ", className='"
+                + ", \n\tclassName='"
                 + className
                 + '\''
-                + ", pkg='"
+                + ", \n\tpkg='"
                 + pkg
                 + '\''
-                + ", inject='"
+                + ", \n\tinject='"
                 + inject
                 + '\''
-                + ", uri='"
+                + ", \n\turi='"
                 + uri
                 + '\''
-                + '}';
+                + "\n  }\n";
     }
 
     @Override

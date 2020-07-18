@@ -29,17 +29,25 @@ public class ASTHelpers {
 
     public static J.MethodDecl findMethodDecl(J.ClassDecl classDecl, String signature){
         for(J.MethodDecl methodDecl : classDecl.getMethods()){
-            if(matchesMethodSignature(methodDecl, signature)){
-                return methodDecl;
-            }
+            if(matchesMethodSignature(methodDecl, signature)) return methodDecl;
         }
         return null;
+    }
+
+    public static String makeSignature(J.MethodDecl methodDecl){
+        String signature = methodDecl.getSimpleName();
+        List<Statement> params = methodDecl.getParams().getParams();
+        for (Statement param : params){
+            if(param instanceof J.VariableDecls)
+                signature = signature.concat(getFullNameOfType((J.VariableDecls) param));
+            else throw new RuntimeException("Unknown tree type for method parameter declaration: " + param);
+        }
+        return signature;
     }
 
     public static boolean matchesMethodSignature(J.MethodDecl methodDecl, String signature) {
         if(!methodDecl.getSimpleName().equals(signature.substring(0, signature.indexOf("("))))
             return false;
-        System.out.println("Checking with: Passed");
         String[] paramsTypesInSignature = signature.substring(signature.indexOf("("), signature.indexOf(")"))
                 .replace("(", "")
                 .replace(")", "")
