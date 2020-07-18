@@ -63,6 +63,7 @@ public class ASTHelpers {
             String[] names = p.split("\\.");
             String simpleName = names[names.length - 1];
             if (!paramTypes.contains(p) && !paramTypes.contains(simpleName)) return false;
+            paramTypes.remove(p);
         }
         return true;
     }

@@ -101,6 +101,7 @@ public class Injector{
     private J.CompilationUnit getTree(Fix fix) {
         ArrayList<Path> p = new ArrayList<>();
         p.add(Paths.get(fix.uri));
+        parser.reset();
         ArrayList<J.CompilationUnit> trees = (ArrayList<J.CompilationUnit>) parser.parse(p);
         if(trees == null || trees.size() != 1) throw new RuntimeException("Error in crating AST tree for file at path: " + fix.uri);
         return trees.get(0);
