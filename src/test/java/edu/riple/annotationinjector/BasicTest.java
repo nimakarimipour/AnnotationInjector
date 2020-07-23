@@ -175,4 +175,45 @@ public class BasicTest {
                         "true")
                 ).start();
     }
+
+    @Test
+    public void add_nullable_field_simple() {
+        String rootName = "add_nullable_field_simple";
+
+        new InjectorTestHelper()
+                .setRootPath(System.getProperty("user.dir") + "/tests/" + rootName)
+                .addInput(
+                        "Super.java",
+                        "package com.uber;",
+                        "import javax.annotation.Nullable;",
+                        "public class Super {",
+                        "   Object h = new Object();",
+                        "   public void test(@Nullable Object f) {",
+                        "      h = f;",
+                        "   }",
+                        "}"
+                )
+                .expectOutput(
+                        "Super.java",
+                        "package com.uber;",
+                        "import javax.annotation.Nullable;",
+                        "public class Super {",
+                        "   @Nullable Object h = new Object();",
+                        "   public void test(@Nullable Object f) {",
+                        "      h = f;",
+                        "   }",
+                        "}"
+                )
+                .addFixes(new Fix(
+                        "javax.annotation.Nullable",
+                        "",
+                        "h",
+                        "CLASS_FIELD",
+                        "",
+                        "com.uber.Super",
+                        "com.uber",
+                        "Super.java",
+                        "true")
+                ).start();
+    }
 }

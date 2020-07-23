@@ -6,14 +6,11 @@ import org.openrewrite.java.JavaRefactorVisitor;
 import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.Statement;
 
-public class AddMethodParamAnnotation implements Refactor {
+public class AddMethodParamAnnotation extends Refactor {
 
-    private final Fix fix;
-    private final J.CompilationUnit tree;
 
-    public AddMethodParamAnnotation(J.CompilationUnit tree, Fix fix) {
-        this.fix = fix;
-        this.tree = tree;
+    public AddMethodParamAnnotation(Fix fix, J.CompilationUnit tree) {
+        super(fix, tree);
     }
 
     @Override

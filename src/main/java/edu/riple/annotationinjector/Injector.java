@@ -1,5 +1,6 @@
 package edu.riple.annotationinjector;
 
+import edu.riple.annotationinjector.visitors.AddClassFieldAnnotation;
 import edu.riple.annotationinjector.visitors.AddMethodParamAnnotation;
 import edu.riple.annotationinjector.visitors.AddMethodReturnAnnotation;
 import edu.riple.annotationinjector.visitors.Refactor;
@@ -62,13 +63,15 @@ public class Injector{
             tree = getTree(fix);
             switch (fix.location) {
                 case "CLASS_FIELD":
+                    refactor = new AddClassFieldAnnotation(fix, tree);
+                    break;
                 case "METHOD_LOCAL_VAR":
                     break;
                 case "METHOD_PARAM":
-                    refactor = new AddMethodParamAnnotation(tree, fix);
+                    refactor = new AddMethodParamAnnotation(fix, tree);
                     break;
                 case "METHOD_RETURN":
-                    refactor = new AddMethodReturnAnnotation(tree, fix);
+                    refactor = new AddMethodReturnAnnotation(fix, tree);
                     break;
                 default:
                     throw new RuntimeException("Undefined location: " + fix.location);
