@@ -61,14 +61,8 @@ public class ASTHelpers {
             .replace("(", "")
             .replace(")", "")
             .split(",");
-    List<Statement> params = methodDecl.getParams().getParams();
-    ArrayList<String> paramTypes = new ArrayList<>();
-    for (Statement param : params) {
-      if (param instanceof J.VariableDecls)
-        paramTypes.add(getFullNameOfType((J.VariableDecls) param));
-      else
-        throw new RuntimeException("Unknown tree type for method parameter declaration: " + param);
-    }
+    if(paramsTypesInSignature.length == 1 && paramsTypesInSignature[0].equals("")) paramsTypesInSignature = new String[0];
+    ArrayList<String> paramTypes = (ArrayList<String>) extractParamTypesOfMethodInString(methodDecl);
     if (paramTypes.size() != paramsTypesInSignature.length) return false;
     for (String p : paramsTypesInSignature) {
       String[] names = p.split("\\.");
@@ -77,6 +71,21 @@ public class ASTHelpers {
       paramTypes.remove(p);
     }
     return true;
+  }
+
+  public static List<String> extractParamTypesOfMethodInString(J.MethodDecl methodDecl){
+    ArrayList<String> paramTypes = new ArrayList<>();
+    if(methodDecl.getParams().getParams().size() == 0)
+      return paramTypes;
+    if(methodDecl.getParams().getParams().get(0) instanceof J.Empty)
+      return paramTypes;
+    for (Statement param : methodDecl.getParams().getParams()) {
+      if (param instanceof J.VariableDecls)
+        paramTypes.add(getFullNameOfType((J.VariableDecls) param));
+      else
+        throw new RuntimeException("Unknown tree type for method parameter declaration: " + param);
+    }
+    return paramTypes;
   }
 
   public static String getFullNameOfType(J.VariableDecls variableDecls) {
