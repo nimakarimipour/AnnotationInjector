@@ -19,12 +19,7 @@ public class ASTHelpers {
       if (classDecl.getSimpleName().equals(path[path.length - 1]))
         return classDecl;
       J.ClassDecl innerClass = findInnerClassDecl(classDecl, path[path.length - 1]);
-      if(innerClass != null)
-      {
-        System.out.println("Found the class: ");
-        System.out.println(innerClass.print());
-        return innerClass;
-      }
+      if(innerClass != null) return innerClass;
     }
     return null;
   }
@@ -34,7 +29,10 @@ public class ASTHelpers {
       if(statement instanceof J.ClassDecl){
         J.ClassDecl innerClass = (J.ClassDecl) statement;
         if(innerClass.getSimpleName().equals(name)) return innerClass;
-        else return findInnerClassDecl(innerClass, name);
+        else {
+          J.ClassDecl res = findInnerClassDecl(innerClass, name);
+          if(res != null) return res;
+        }
       }
     }
     return null;
@@ -52,18 +50,6 @@ public class ASTHelpers {
       if (matchesMethodSignature(methodDecl, signature)) return methodDecl;
     }
     return null;
-  }
-
-  public static String makeSignature(J.MethodDecl methodDecl) {
-    String signature = methodDecl.getSimpleName() + "(";
-    List<Statement> params = methodDecl.getParams().getParams();
-    for (Statement param : params) {
-      if (param instanceof J.VariableDecls)
-        signature = signature.concat(getFullNameOfType((J.VariableDecls) param));
-      else
-        throw new RuntimeException("Unknown tree type for method parameter declaration: " + param);
-    }
-    return signature + ")";
   }
 
   public static boolean matchesMethodSignature(J.MethodDecl methodDecl, String signature) {
