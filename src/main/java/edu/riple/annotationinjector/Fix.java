@@ -145,4 +145,18 @@ public class Fix {
         res.put(KEYS.URI.label, uri);
         return res;
     }
+
+    public Fix duplicate(){
+        return new Fix(
+                annotation,
+                method,
+                param,
+                location,
+                modifiers,
+                className,
+                pkg,
+                uri,
+                inject
+        );
+    }
 }

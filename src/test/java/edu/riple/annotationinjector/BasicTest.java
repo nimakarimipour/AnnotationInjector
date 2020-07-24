@@ -139,57 +139,6 @@ public class BasicTest {
     }
 
     @Test
-    public void empty_method_param_pick() {
-        String rootName = "empty_method_param_pick";
-
-        new InjectorTestHelper()
-                .setRootPath(System.getProperty("user.dir") + "/tests/" + rootName)
-                .addInput(
-                        "Super.java",
-                        "package com.uber;",
-                        "import javax.annotation.Nullable;",
-                        "public class Super {",
-                        "   Object test() {",
-                        "       return new Object();",
-                        "   }",
-                        "   class SuperInner {",
-                        "       Object bar(@Nullable Object foo) {",
-                        "           return foo;",
-                        "       }",
-                        "   }",
-                        "}"
-                )
-                .expectOutput(
-                        "Super.java",
-                        "package com.uber;",
-                        "import javax.annotation.Nullable;",
-                        "public class Su  per {",
-                        "   @Nullable",
-                        "   Object test() {",
-                        "       return new Object();",
-                        "   }",
-                        "   class SuperInner {",
-                        "       Object bar(@Nullable Object foo) {",
-                        "           return foo;",
-                        "       }",
-                        "   }",
-                        "}"
-                )
-                .addFixes(
-                        new Fix(
-                                "javax.annotation.Nullable",
-                                "test()",
-                                "",
-                                "METHOD_RETURN",
-                                "",
-                                "com.uber.Super",
-                                "com.uber",
-                                "Super.java",
-                                "true")
-                ).start();
-    }
-
-    @Test
     public void add_nullable_param_simple() {
         String rootName = "add_nullable_param_simple";
 
@@ -318,5 +267,97 @@ public class BasicTest {
                         "Super.java",
                         "true")
                 ).start();
+    }
+
+    @Test
+    public void empty_method_param_pick() {
+        String rootName = "empty_method_param_pick";
+
+        new InjectorTestHelper()
+                .setRootPath(System.getProperty("user.dir") + "/tests/" + rootName)
+                .addInput(
+                        "Super.java",
+                        "package com.uber;",
+                        "import javax.annotation.Nullable;",
+                        "public class Super {",
+                        "   Object test() {",
+                        "       return new Object();",
+                        "   }",
+                        "   class SuperInner {",
+                        "       Object bar(@Nullable Object foo) {",
+                        "           return foo;",
+                        "       }",
+                        "   }",
+                        "}"
+                )
+                .expectOutput(
+                        "Super.java",
+                        "package com.uber;",
+                        "import javax.annotation.Nullable;",
+                        "public class Su  per {",
+                        "   @Nullable",
+                        "   Object test() {",
+                        "       return new Object();",
+                        "   }",
+                        "   class SuperInner {",
+                        "       Object bar(@Nullable Object foo) {",
+                        "           return foo;",
+                        "       }",
+                        "   }",
+                        "}"
+                )
+                .addFixes(
+                        new Fix(
+                                "javax.annotation.Nullable",
+                                "test()",
+                                "",
+                                "METHOD_RETURN",
+                                "",
+                                "com.uber.Super",
+                                "com.uber",
+                                "Super.java",
+                                "true")
+                ).start();
+    }
+
+    @Test
+    public void skip_duplicate_annotation() {
+        String rootName = "skip_duplicate_annotation";
+
+        Fix fix = new Fix(
+                "javax.annotation.Nullable",
+                "test()",
+                "",
+                "METHOD_RETURN",
+                "",
+                "com.uber.Super",
+                "com.uber",
+                "Super.java",
+                "true");
+
+        new InjectorTestHelper()
+                .setRootPath(System.getProperty("user.dir") + "/tests/" + rootName)
+                .addInput(
+                        "Super.java",
+                        "package com.uber;",
+                        "import javax.annotation.Nullable;",
+                        "public class Super {",
+                        "   @Nullable Object test() {",
+                        "       return new Object();",
+                        "   }",
+                        "}"
+                )
+                .expectOutput(
+                        "Super.java",
+                        "package com.uber;",
+                        "import javax.annotation.Nullable;",
+                        "public class Super {",
+                        "   @Nullable Object test() {",
+                        "       return new Object();",
+                        "   }",
+                        "}"
+                )
+                .addFixes(fix, fix.duplicate(), fix.duplicate())
+                .start();
     }
 }

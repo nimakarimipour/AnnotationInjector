@@ -106,6 +106,7 @@ public class Injector {
 
   private J.CompilationUnit getTree(Fix fix) {
     ArrayList<Path> p = new ArrayList<>();
+    System.out.println("URI: " + fix.uri);
     p.add(Paths.get(fix.uri));
     parser.reset();
     ArrayList<J.CompilationUnit> trees = (ArrayList<J.CompilationUnit>) parser.parse(p);
