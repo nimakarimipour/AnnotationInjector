@@ -87,6 +87,59 @@ public class BasicTest {
     }
 
     @Test
+    public void return_nullable_inner_class() {
+        String rootName = "return_nullable_inner_class";
+
+        new InjectorTestHelper()
+                .setRootPath(System.getProperty("user.dir") + "/tests/" + rootName)
+                .addInput(
+                        "Super.java",
+                        "package com.uber;",
+                        "import javax.annotation.Nullable;",
+                        "public class Super {",
+                        "   @Nullable",
+                        "   Object test(boolean flag) {",
+                        "       return new Object();",
+                        "   }",
+                        "   class SuperInner {",
+                        "   Object bar(@Nullable Object foo) {",
+                        "       return foo;",
+                        "   }",
+                        "}"
+                )
+                .expectOutput(
+                        "Super.java",
+                        "package com.uber;",
+                        "import javax.annotation.Nullable;",
+                        "public class Super {",
+                        "   @Nullable",
+                        "   Object test(boolean flag) {",
+                        "       return new Object();",
+                        "   }",
+                        "   class SuperInner {",
+                        "       @Nullable",
+                        "       Object bar(@Nullable Object foo) {",
+                        "           return foo;",
+                        "       }",
+                        "   }",
+                        "}"
+                )
+                .addFixes(
+                        new Fix(
+                                "javax.annotation.Nullable",
+                                "bar(java.lang.Object)",
+                                "",
+                                "METHOD_RETURN",
+                                "",
+                                "com.uber.Super.SuperInner",
+                                "com.uber",
+                                "Super.java",
+                                "true")
+                ).start();
+    }
+
+
+    @Test
     public void add_nullable_param_simple() {
         String rootName = "add_nullable_param_simple";
 
