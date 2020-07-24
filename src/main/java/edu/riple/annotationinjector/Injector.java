@@ -135,7 +135,9 @@ public class Injector {
   private ArrayList<Fix> extractFixesFromJson(JSONArray fixesJson) {
     ArrayList<Fix> fixes = new ArrayList<>();
     for (Object o : fixesJson) {
-      fixes.add(Fix.createFromJson((JSONObject) o));
+      Fix fix = Fix.createFromJson((JSONObject) o);
+      if(!fixes.contains(fix))
+        fixes.add(fix);
     }
     return fixes;
   }
