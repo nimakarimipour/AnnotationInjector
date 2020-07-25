@@ -15,7 +15,7 @@ public class AddMethodParamAnnotation extends Refactor {
   @Override
   public JavaRefactorVisitor build() {
     J.MethodDecl methodDecl = ASTHelpers.findMethodDecl(tree, fix);
-    if (methodDecl == null) throw new RuntimeException("No method found with signature: " + fix);
+    if (methodDecl == null) throw new RuntimeException("No method found associated to fix: " + fix);
     for (Statement param : methodDecl.getParams().getParams()) {
       if (param instanceof J.VariableDecls) {
         if (fix.param.equals(((J.VariableDecls) param).getVars().get(0).getSimpleName()))

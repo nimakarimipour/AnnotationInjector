@@ -58,19 +58,33 @@ public class ASTHelpers {
     String[] paramsTypesInSignature =
         signature
             .substring(signature.indexOf("("), signature.indexOf(")"))
+            .replace(" ", "")
             .replace("(", "")
             .replace(")", "")
             .split(",");
-    if(paramsTypesInSignature.length == 1 && paramsTypesInSignature[0].equals("")) paramsTypesInSignature = new String[0];
-    ArrayList<String> paramTypes = (ArrayList<String>) extractParamTypesOfMethodInString(methodDecl);
+
+    if (paramsTypesInSignature.length == 1 && paramsTypesInSignature[0].equals(""))
+      paramsTypesInSignature = new String[0];
+    ArrayList<String> paramTypes =
+        (ArrayList<String>) extractParamTypesOfMethodInString(methodDecl);
     if (paramTypes.size() != paramsTypesInSignature.length) return false;
-    for (String p : paramsTypesInSignature) {
-      String[] names = p.split("\\.");
-      String simpleName = names[names.length - 1];
-      if (!paramTypes.contains(p) && !paramTypes.contains(simpleName)) return false;
-      paramTypes.remove(p);
+    for (String i : paramsTypesInSignature) {
+      String found = null;
+      String last_i = lastName(i);
+      for (String j : paramTypes) {
+        String last_j = lastName(j);
+        if (j.equals(i) || last_i.equals(last_j)) found = j;
+      }
+      if (found == null) return false;
+      paramTypes.remove(found);
     }
     return true;
+  }
+
+  public static String lastName(String name){
+    if(!name.contains(".")) return name;
+    String[] names = name.split("\\.");
+    return names[names.length - 1];
   }
 
   public static List<String> extractParamTypesOfMethodInString(J.MethodDecl methodDecl){

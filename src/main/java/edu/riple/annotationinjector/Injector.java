@@ -86,6 +86,7 @@ public class Injector {
     }
   }
 
+  int counter = 0;
   private void overWriteToFile(Change<J.CompilationUnit> change, Fix fix) {
     String path = fix.uri;
     if (mode.equals(MODE.TEST)) {
@@ -106,7 +107,6 @@ public class Injector {
 
   private J.CompilationUnit getTree(Fix fix) {
     ArrayList<Path> p = new ArrayList<>();
-    System.out.println("URI: " + fix.uri);
     p.add(Paths.get(fix.uri));
     parser.reset();
     ArrayList<J.CompilationUnit> trees = (ArrayList<J.CompilationUnit>) parser.parse(p);
