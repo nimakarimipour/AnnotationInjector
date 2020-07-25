@@ -80,9 +80,11 @@ public class Injector {
         default:
           throw new RuntimeException("Undefined location: " + fix.location);
       }
-      if (refactor == null) throw new RuntimeException("Could not figure out the fix for: " + fix);
-      Change<J.CompilationUnit> changed = tree.refactor().visit(refactor.build()).fix();
-      overWriteToFile(changed, fix);
+      if (refactor == null) System.out.println("Skipped fix: " + fix);
+      else {
+        Change<J.CompilationUnit> changed = tree.refactor().visit(refactor.build()).fix();
+        overWriteToFile(changed, fix);
+      }
     }
   }
 
