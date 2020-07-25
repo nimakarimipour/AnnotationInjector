@@ -8,6 +8,10 @@ import org.junit.runners.JUnit4;
 
 @RunWith(JUnit4.class)
 public class BasicTest {
+  // When applying a series of fixes to the same file, for each fix's uri, give the output address
+  // of previous fix to keep the changes of previous fix
+  // In this case, for the second and the rest, "../out/" should be added at the beginning of every
+  // uri. (See return_nullable_signature_duplicate_type test)
 
   @Before
   public void setup() {}
@@ -221,67 +225,65 @@ public class BasicTest {
     String rootName = "return_nullable_signature_duplicate_type";
 
     new InjectorTestHelper()
-            .setRootPath(System.getProperty("user.dir") + "/tests/" + rootName)
-            .addInput(
-                    "Super.java",
-                    "package com.uber;",
-                    "public class Super {",
-                    "   Object test(Object flag, String name, String lastname) {",
-                    "       if(flag == null) {",
-                    "           return new Object();",
-                    "       }",
-                    "       else return new Object();",
-                    "   }",
-                    "   Object test(Object flag, Object name, String lastname) {",
-                    "       if(flag == null) {",
-                    "           return new Object();",
-                    "       }",
-                    "       else return new Object();",
-                    "   }",
-                    "}")
-            .expectOutput(
-                    "Super.java",
-                    "package com.uber;",
-                    "import javax.annotation.Nullable;",
-                    "public class Super {",
-                    "   @Nullable Object test(Object flag, String name, String lastname) {",
-                    "       if(flag == null) {",
-                    "           return new Object();",
-                    "       }",
-                    "       else return new Object();",
-                    "   }",
-                    "   Object test(Object flag, @Nullable Object name, String lastname) {",
-                    "       if(flag == null) {",
-                    "           return new Object();",
-                    "       }",
-                    "       else return new Object();",
-                    "   }",
-                    "}")
-            .addFixes(
-                    new Fix(
-                            "javax.annotation.Nullable",
-                            "test(Object, String, String)",
-                            "",
-                            "METHOD_RETURN",
-                            "",
-                            "com.uber.Super",
-                            "com.uber",
-                            "Super.java",
-                            "true"),
-                    new Fix(
-                            "javax.annotation.Nullable",
-                            "test(Object, Object, String)",
-                            "name",
-                            "METHOD_PARAM",
-                            "",
-                            "com.uber.Super",
-                            "com.uber",
-                            "../out/Super.java",
-                            "true")
-            )
-            .start();
+        .setRootPath(System.getProperty("user.dir") + "/tests/" + rootName)
+        .addInput(
+            "Super.java",
+            "package com.uber;",
+            "public class Super {",
+            "   Object test(Object flag, String name, String lastname) {",
+            "       if(flag == null) {",
+            "           return new Object();",
+            "       }",
+            "       else return new Object();",
+            "   }",
+            "   Object test(Object flag, Object name, String lastname) {",
+            "       if(flag == null) {",
+            "           return new Object();",
+            "       }",
+            "       else return new Object();",
+            "   }",
+            "}")
+        .expectOutput(
+            "Super.java",
+            "package com.uber;",
+            "import javax.annotation.Nullable;",
+            "public class Super {",
+            "   @Nullable Object test(Object flag, String name, String lastname) {",
+            "       if(flag == null) {",
+            "           return new Object();",
+            "       }",
+            "       else return new Object();",
+            "   }",
+            "   Object test(Object flag, @Nullable Object name, String lastname) {",
+            "       if(flag == null) {",
+            "           return new Object();",
+            "       }",
+            "       else return new Object();",
+            "   }",
+            "}")
+        .addFixes(
+            new Fix(
+                "javax.annotation.Nullable",
+                "test(Object, String, String)",
+                "",
+                "METHOD_RETURN",
+                "",
+                "com.uber.Super",
+                "com.uber",
+                "Super.java",
+                "true"),
+            new Fix(
+                "javax.annotation.Nullable",
+                "test(Object, Object, String)",
+                "name",
+                "METHOD_PARAM",
+                "",
+                "com.uber.Super",
+                "com.uber",
+                "../out/Super.java",
+                "true"))
+        .start();
   }
-
 
   @Test
   public void field_nullable_simple() {
