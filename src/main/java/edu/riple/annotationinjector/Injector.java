@@ -86,7 +86,6 @@ public class Injector {
     }
   }
 
-  int counter = 0;
   private void overWriteToFile(Change<J.CompilationUnit> change, Fix fix) {
     String path = fix.uri;
     if (mode.equals(MODE.TEST)) {
