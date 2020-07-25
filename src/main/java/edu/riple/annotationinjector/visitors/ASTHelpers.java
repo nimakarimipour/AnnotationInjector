@@ -16,22 +16,21 @@ public class ASTHelpers {
   public static J.ClassDecl findClassDecl(J.CompilationUnit tree, String fullName) {
     String[] path = fullName.split("\\.");
     for (J.ClassDecl classDecl : tree.getClasses()) {
-      if (classDecl.getSimpleName().equals(path[path.length - 1]))
-        return classDecl;
+      if (classDecl.getSimpleName().equals(path[path.length - 1])) return classDecl;
       J.ClassDecl innerClass = findInnerClassDecl(classDecl, path[path.length - 1]);
-      if(innerClass != null) return innerClass;
+      if (innerClass != null) return innerClass;
     }
     return null;
   }
 
-  public static J.ClassDecl findInnerClassDecl(J.ClassDecl classDecl, String name){
-    for (J statement : classDecl.getBody().getStatements()){
-      if(statement instanceof J.ClassDecl){
+  public static J.ClassDecl findInnerClassDecl(J.ClassDecl classDecl, String name) {
+    for (J statement : classDecl.getBody().getStatements()) {
+      if (statement instanceof J.ClassDecl) {
         J.ClassDecl innerClass = (J.ClassDecl) statement;
-        if(innerClass.getSimpleName().equals(name)) return innerClass;
+        if (innerClass.getSimpleName().equals(name)) return innerClass;
         else {
           J.ClassDecl res = findInnerClassDecl(innerClass, name);
-          if(res != null) return res;
+          if (res != null) return res;
         }
       }
     }
@@ -81,18 +80,16 @@ public class ASTHelpers {
     return true;
   }
 
-  public static String lastName(String name){
-    if(!name.contains(".")) return name;
+  public static String lastName(String name) {
+    if (!name.contains(".")) return name;
     String[] names = name.split("\\.");
     return names[names.length - 1];
   }
 
-  public static List<String> extractParamTypesOfMethodInString(J.MethodDecl methodDecl){
+  public static List<String> extractParamTypesOfMethodInString(J.MethodDecl methodDecl) {
     ArrayList<String> paramTypes = new ArrayList<>();
-    if(methodDecl.getParams().getParams().size() == 0)
-      return paramTypes;
-    if(methodDecl.getParams().getParams().get(0) instanceof J.Empty)
-      return paramTypes;
+    if (methodDecl.getParams().getParams().size() == 0) return paramTypes;
+    if (methodDecl.getParams().getParams().get(0) instanceof J.Empty) return paramTypes;
     for (Statement param : methodDecl.getParams().getParams()) {
       if (param instanceof J.VariableDecls)
         paramTypes.add(getFullNameOfType((J.VariableDecls) param));
@@ -104,7 +101,9 @@ public class ASTHelpers {
 
   public static String getFullNameOfType(J.VariableDecls variableDecls) {
     if (variableDecls.getTypeExpr().getType() != null) {
-      return variableDecls.getTypeExpr().getType().toTypeTree().print();
+      String primeType = variableDecls.getTypeExpr().getType().toTypeTree().print();
+      if (variableDecls.print().replace(" ", "").contains("[]")) primeType += "[]";
+      return primeType;
     } else return variableDecls.getTypeExpr().print();
   }
 }

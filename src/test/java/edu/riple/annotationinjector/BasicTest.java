@@ -221,6 +221,57 @@ public class BasicTest {
   }
 
   @Test
+  public void param_nullable_interface() {
+    String rootName = "param_nullable_interface";
+
+    new InjectorTestHelper()
+        .setRootPath(System.getProperty("user.dir") + "/tests/" + rootName)
+        .addInput(
+            "SSAInstructionFactory.java",
+            "package com.uber;",
+            "public interface SSAInstructionFactory {",
+            "SSAAbstractInvokeInstruction InvokeInstruction(",
+            "   int index,",
+            "   int result,",
+            "   int[] params,",
+            "   int exception,",
+            "   CallSiteReference site,",
+            "   BootstrapMethod bootstrap);",
+            "",
+            "SSAAbstractInvokeInstruction InvokeInstruction(",
+            "   int index, int[] params, int exception, CallSiteReference site, BootstrapMethod bootstrap);",
+            "}")
+        .expectOutput(
+                "SSAInstructionFactory.java",
+                "package com.uber;",
+                "import javax.annotation.Nullable;",
+                "public interface SSAInstructionFactory {",
+                "SSAAbstractInvokeInstruction InvokeInstruction(",
+                "   int index,",
+                "   int result,",
+                "   int[] params,",
+                "   int exception,",
+                "   CallSiteReference site,",
+                "   @Nullable BootstrapMethod bootstrap);",
+                "",
+                "SSAAbstractInvokeInstruction InvokeInstruction(",
+                "   int index, int[] params, int exception, CallSiteReference site, BootstrapMethod bootstrap);",
+                "}")
+        .addFixes(
+            new Fix(
+                "javax.annotation.Nullable",
+                "InvokeInstruction(int,int,int[],int,com.ibm.wala.classLoader.CallSiteReference,com.ibm.wala.shrikeCT.BootstrapMethodsReader.BootstrapMethod)",
+                "bootstrap",
+                "METHOD_PARAM",
+                "",
+                "com.uber.SSAInstructionFactory",
+                "com.uber",
+                "SSAInstructionFactory.java",
+                "true"))
+        .start();
+  }
+
+  @Test
   public void return_nullable_signature_duplicate_type() {
     String rootName = "return_nullable_signature_duplicate_type";
 

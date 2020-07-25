@@ -63,7 +63,7 @@ public class Injector {
     J.CompilationUnit tree;
     Refactor refactor = null;
     for (Fix fix : fixes) {
-      System.out.println("Applying Fix:\n" + fix);
+      System.out.println("Applying Fix:" + fix);
       tree = getTree(fix);
       switch (fix.location) {
         case "CLASS_FIELD":

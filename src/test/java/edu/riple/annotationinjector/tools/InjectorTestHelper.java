@@ -62,9 +62,9 @@ public class InjectorTestHelper {
             if (!trimmedSrc.equals(trimmedDest))
                 fail(
                         "\nExpected:\n" +
-                                srcFile +
-                                "\n\nBut found:\n" +
                                 destFile +
+                                "\n\nBut found:\n" +
+                                srcFile +
                                 "\n");
         }
     }
