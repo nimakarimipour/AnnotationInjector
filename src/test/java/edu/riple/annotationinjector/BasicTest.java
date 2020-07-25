@@ -276,7 +276,7 @@ public class BasicTest {
                             "",
                             "com.uber.Super",
                             "com.uber",
-                            "Super.java",
+                            "../out/Super.java",
                             "true")
             )
             .start();
