@@ -3,7 +3,6 @@ package edu.riple.annotationinjector.visitors;
 import edu.riple.annotationinjector.Fix;
 import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.Statement;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,25 +53,17 @@ public class ASTHelpers {
   public static boolean matchesMethodSignature(J.MethodDecl methodDecl, String signature) {
     if (!methodDecl.getSimpleName().equals(signature.substring(0, signature.indexOf("("))))
       return false;
-    String[] paramsTypesInSignature =
-        signature
-            .substring(signature.indexOf("("), signature.indexOf(")"))
-            .replace(" ", "")
-            .replace("(", "")
-            .replace(")", "")
-            .split(",");
+    List<String> paramsTypesInSignature = extractParamTypesOfMethodInString(signature);
+    List<String> paramTypes = extractParamTypesOfMethodInString(methodDecl);
 
-    if (paramsTypesInSignature.length == 1 && paramsTypesInSignature[0].equals(""))
-      paramsTypesInSignature = new String[0];
-    ArrayList<String> paramTypes =
-        (ArrayList<String>) extractParamTypesOfMethodInString(methodDecl);
+    //    System.out.println("Printing paramsTypesInSignature");
+    //    for (String s : paramsTypesInSignature) System.out.println(s);
+    //    System.out.println("end");
+    //    System.out.println("Printing paramTypes");
+    //    for (String s : paramTypes) System.out.println(s);
+    //    System.out.println("end");
 
-    System.out.println("Printing paramsTypesInSignature");
-    for (String s : paramsTypesInSignature) System.out.println(s);
-    System.out.println("paramTypes");
-    for (String s : paramTypes) System.out.println(s);
-
-    if (paramTypes.size() != paramsTypesInSignature.length) return false;
+    if (paramTypes.size() != paramsTypesInSignature.size()) return false;
     for (String i : paramsTypesInSignature) {
       String found = null;
       String last_i = lastName(i);
@@ -90,10 +81,47 @@ public class ASTHelpers {
     if (!name.contains(".")) return name;
     String[] names = name.split("\\.");
     String res = names[names.length - 1];
-    if(res.contains("<")){
+    if (res.contains("<")) {
       res = res.substring(0, res.indexOf("<"));
     }
     return res;
+  }
+
+  public static List<String> extractParamTypesOfMethodInString(String signature) {
+    signature =
+        signature
+            .substring(signature.indexOf("("))
+            .replace("(", "")
+            .replace(")", "")
+            .replaceAll(" ", "");
+    int index = 0;
+    int generic_level = 0;
+    List<String> ans = new ArrayList<>();
+    StringBuilder tmp = new StringBuilder();
+    while (index < signature.length()) {
+      char c = signature.charAt(index);
+      switch (c) {
+        case '<':
+          generic_level++;
+          tmp.append(c);
+          break;
+        case '>':
+          generic_level--;
+          tmp.append(c);
+          break;
+        case ',':
+          if (generic_level == 0) {
+            ans.add(tmp.toString());
+            tmp = new StringBuilder();
+          } else tmp.append(c);
+          break;
+        default:
+          tmp.append(c);
+      }
+      index++;
+    }
+    if (signature.length() > 1 && generic_level == 0) ans.add(tmp.toString());
+    return ans;
   }
 
   public static List<String> extractParamTypesOfMethodInString(J.MethodDecl methodDecl) {

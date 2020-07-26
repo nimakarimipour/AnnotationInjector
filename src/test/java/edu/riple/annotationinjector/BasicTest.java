@@ -137,64 +137,64 @@ public class BasicTest {
     String rootName = "return_nullable_signature_duplicate_type";
 
     new InjectorTestHelper()
-            .setRootPath(System.getProperty("user.dir") + "/tests/" + rootName)
-            .addInput(
-                    "Super.java",
-                    "package com.uber;",
-                    "public class Super {",
-                    "   Object test(Object flag, String name, String lastname) {",
-                    "       if(flag == null) {",
-                    "           return new Object();",
-                    "       }",
-                    "       else return new Object();",
-                    "   }",
-                    "   Object test(Object flag, Object name, String lastname) {",
-                    "       if(flag == null) {",
-                    "           return new Object();",
-                    "       }",
-                    "       else return new Object();",
-                    "   }",
-                    "}")
-            .expectOutput(
-                    "Super.java",
-                    "package com.uber;",
-                    "import javax.annotation.Nullable;",
-                    "public class Super {",
-                    "   @Nullable Object test(Object flag, String name, String lastname) {",
-                    "       if(flag == null) {",
-                    "           return new Object();",
-                    "       }",
-                    "       else return new Object();",
-                    "   }",
-                    "   Object test(Object flag, @Nullable Object name, String lastname) {",
-                    "       if(flag == null) {",
-                    "           return new Object();",
-                    "       }",
-                    "       else return new Object();",
-                    "   }",
-                    "}")
-            .addFixes(
-                    new Fix(
-                            "javax.annotation.Nullable",
-                            "test(Object, String, String)",
-                            "",
-                            "METHOD_RETURN",
-                            "",
-                            "com.uber.Super",
-                            "com.uber",
-                            "Super.java",
-                            "true"),
-                    new Fix(
-                            "javax.annotation.Nullable",
-                            "test(Object, Object, String)",
-                            "name",
-                            "METHOD_PARAM",
-                            "",
-                            "com.uber.Super",
-                            "com.uber",
-                            "../out/Super.java",
-                            "true"))
-            .start();
+        .setRootPath(System.getProperty("user.dir") + "/tests/" + rootName)
+        .addInput(
+            "Super.java",
+            "package com.uber;",
+            "public class Super {",
+            "   Object test(Object flag, String name, String lastname) {",
+            "       if(flag == null) {",
+            "           return new Object();",
+            "       }",
+            "       else return new Object();",
+            "   }",
+            "   Object test(Object flag, Object name, String lastname) {",
+            "       if(flag == null) {",
+            "           return new Object();",
+            "       }",
+            "       else return new Object();",
+            "   }",
+            "}")
+        .expectOutput(
+            "Super.java",
+            "package com.uber;",
+            "import javax.annotation.Nullable;",
+            "public class Super {",
+            "   @Nullable Object test(Object flag, String name, String lastname) {",
+            "       if(flag == null) {",
+            "           return new Object();",
+            "       }",
+            "       else return new Object();",
+            "   }",
+            "   Object test(Object flag, @Nullable Object name, String lastname) {",
+            "       if(flag == null) {",
+            "           return new Object();",
+            "       }",
+            "       else return new Object();",
+            "   }",
+            "}")
+        .addFixes(
+            new Fix(
+                "javax.annotation.Nullable",
+                "test(Object, String, String)",
+                "",
+                "METHOD_RETURN",
+                "",
+                "com.uber.Super",
+                "com.uber",
+                "Super.java",
+                "true"),
+            new Fix(
+                "javax.annotation.Nullable",
+                "test(Object, Object, String)",
+                "name",
+                "METHOD_PARAM",
+                "",
+                "com.uber.Super",
+                "com.uber",
+                "../out/Super.java",
+                "true"))
+        .start();
   }
 
   @Test
@@ -307,21 +307,21 @@ public class BasicTest {
             "   int index, int[] params, int exception, CallSiteReference site, BootstrapMethod bootstrap);",
             "}")
         .expectOutput(
-                "SSAInstructionFactory.java",
-                "package com.uber;",
-                "import javax.annotation.Nullable;",
-                "public interface SSAInstructionFactory {",
-                "SSAAbstractInvokeInstruction InvokeInstruction(",
-                "   int index,",
-                "   int result,",
-                "   int[] params,",
-                "   int exception,",
-                "   CallSiteReference site,",
-                "   @Nullable BootstrapMethod bootstrap);",
-                "",
-                "SSAAbstractInvokeInstruction InvokeInstruction(",
-                "   int index, int[] params, int exception, CallSiteReference site, BootstrapMethod bootstrap);",
-                "}")
+            "SSAInstructionFactory.java",
+            "package com.uber;",
+            "import javax.annotation.Nullable;",
+            "public interface SSAInstructionFactory {",
+            "SSAAbstractInvokeInstruction InvokeInstruction(",
+            "   int index,",
+            "   int result,",
+            "   int[] params,",
+            "   int exception,",
+            "   CallSiteReference site,",
+            "   @Nullable BootstrapMethod bootstrap);",
+            "",
+            "SSAAbstractInvokeInstruction InvokeInstruction(",
+            "   int index, int[] params, int exception, CallSiteReference site, BootstrapMethod bootstrap);",
+            "}")
         .addFixes(
             new Fix(
                 "javax.annotation.Nullable",
@@ -374,6 +374,72 @@ public class BasicTest {
                 "javax.annotation.Nullable",
                 "computeMod(com.ibm.wala.ipa.callgraph.CallGraph,com.ibm.wala.ipa.callgraph.propagation.PointerAnalysis<T>,com.ibm.wala.ipa.slicer.HeapExclusions)",
                 "heapExclude",
+                "METHOD_PARAM",
+                "",
+                "com.uber.ModRef",
+                "com.uber",
+                "ModRef.java",
+                "true"))
+        .start();
+  }
+
+  @Test
+  public void param_nullable_generics_multiple() {
+    String rootName = "param_nullable_generics_multiple";
+
+    new InjectorTestHelper()
+        .setRootPath(System.getProperty("user.dir") + "/tests/" + rootName)
+        .addInput(
+            "ModRef.java",
+            "package com.uber;",
+            "public class ModRef {",
+            "   public ModRef(",
+            "       IMethod method,",
+            "       Context context,",
+            "       AbstractCFG<?, ?> cfg,",
+            "       SSAInstruction[] instructions,",
+            "       SSAOptions options,",
+            "       Map<Integer, ConstantValue> constants)",
+            "       throws AssertionError {",
+            "           super(",
+            "               method, ",
+            "               instructions,",
+            "               makeSymbolTable(method, instructions, constants, cfg),",
+            "               new SSACFG(method, cfg, instructions),",
+            "               options",
+            "           );",
+            "         if (PARANOID) { repOK(instructions); }",
+            "         setupLocationMap();",
+            "    }",
+            "}")
+        .expectOutput(
+            "ModRef.java",
+            "package com.uber;",
+            "public class ModRef {",
+            "   public ModRef(",
+            "       IMethod method,",
+            "       Context context,",
+            "       AbstractCFG<?, ?> cfg,",
+            "       SSAInstruction[] instructions,",
+            "       SSAOptions options,",
+            "       Map<Integer, ConstantValue> constants)",
+            "       throws AssertionError {",
+            "           super(",
+            "               method, ",
+            "               instructions,",
+            "               makeSymbolTable(method, instructions, constants, cfg),",
+            "               new SSACFG(method, cfg, instructions),",
+            "               options",
+            "           );",
+            "         if (PARANOID) { repOK(instructions); }",
+            "         setupLocationMap();",
+            "    }",
+            "}")
+        .addFixes(
+            new Fix(
+                "javax.annotation.Nullable",
+                "ModRef(com.ibm.wala.classLoader.IMethod,com.ibm.wala.ipa.callgraph.Context,com.ibm.wala.cfg.AbstractCFG<?,?>,com.ibm.wala.ssa.SSAInstruction[],com.ibm.wala.ssa.SSAOptions,java.util.Map<java.lang.Integer,com.ibm.wala.ssa.ConstantValue>)",
+                "constants",
                 "METHOD_PARAM",
                 "",
                 "com.uber.ModRef",
