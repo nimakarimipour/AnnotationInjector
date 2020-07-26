@@ -9,7 +9,7 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class BasicTest {
   // When applying a series of fixes to the same file, for each fix's uri, give the output address
-  // of the previous fix to keep the changes of previous fix
+  // of the previous fix to keep the changes of previous processing
   // In this case, for the second and the rest, "../out/" should be added at the beginning of every
   // uri. (See return_nullable_signature_duplicate_type test)
 
@@ -130,6 +130,71 @@ public class BasicTest {
                 "Super.java",
                 "true"))
         .start();
+  }
+
+  @Test
+  public void return_nullable_signature_duplicate_type() {
+    String rootName = "return_nullable_signature_duplicate_type";
+
+    new InjectorTestHelper()
+            .setRootPath(System.getProperty("user.dir") + "/tests/" + rootName)
+            .addInput(
+                    "Super.java",
+                    "package com.uber;",
+                    "public class Super {",
+                    "   Object test(Object flag, String name, String lastname) {",
+                    "       if(flag == null) {",
+                    "           return new Object();",
+                    "       }",
+                    "       else return new Object();",
+                    "   }",
+                    "   Object test(Object flag, Object name, String lastname) {",
+                    "       if(flag == null) {",
+                    "           return new Object();",
+                    "       }",
+                    "       else return new Object();",
+                    "   }",
+                    "}")
+            .expectOutput(
+                    "Super.java",
+                    "package com.uber;",
+                    "import javax.annotation.Nullable;",
+                    "public class Super {",
+                    "   @Nullable Object test(Object flag, String name, String lastname) {",
+                    "       if(flag == null) {",
+                    "           return new Object();",
+                    "       }",
+                    "       else return new Object();",
+                    "   }",
+                    "   Object test(Object flag, @Nullable Object name, String lastname) {",
+                    "       if(flag == null) {",
+                    "           return new Object();",
+                    "       }",
+                    "       else return new Object();",
+                    "   }",
+                    "}")
+            .addFixes(
+                    new Fix(
+                            "javax.annotation.Nullable",
+                            "test(Object, String, String)",
+                            "",
+                            "METHOD_RETURN",
+                            "",
+                            "com.uber.Super",
+                            "com.uber",
+                            "Super.java",
+                            "true"),
+                    new Fix(
+                            "javax.annotation.Nullable",
+                            "test(Object, Object, String)",
+                            "name",
+                            "METHOD_PARAM",
+                            "",
+                            "com.uber.Super",
+                            "com.uber",
+                            "../out/Super.java",
+                            "true"))
+            .start();
   }
 
   @Test
@@ -272,66 +337,48 @@ public class BasicTest {
   }
 
   @Test
-  public void return_nullable_signature_duplicate_type() {
-    String rootName = "return_nullable_signature_duplicate_type";
+  public void param_nullable_generics_simple() {
+    String rootName = "param_nullable_generics_simple";
 
     new InjectorTestHelper()
         .setRootPath(System.getProperty("user.dir") + "/tests/" + rootName)
         .addInput(
-            "Super.java",
+            "ModRef.java",
             "package com.uber;",
-            "public class Super {",
-            "   Object test(Object flag, String name, String lastname) {",
-            "       if(flag == null) {",
-            "           return new Object();",
-            "       }",
-            "       else return new Object();",
-            "   }",
-            "   Object test(Object flag, Object name, String lastname) {",
-            "       if(flag == null) {",
-            "           return new Object();",
-            "       }",
-            "       else return new Object();",
+            "public class ModRef<T extends InstanceKey> {",
+            "   public Map<CGNode, OrdinalSet<PointerKey>> computeMod(",
+            "     CallGraph cg, PointerAnalysis<T> pa, HeapExclusions heapExclude) {",
+            "     if (cg == null) {",
+            "       throw new IllegalArgumentException(\"cg is null\");",
+            "     }",
+            "     Map<CGNode, Collection<PointerKey>> scan = scanForMod(cg, pa, heapExclude);",
+            "     return CallGraphTransitiveClosure.transitiveClosure(cg, scan);",
             "   }",
             "}")
         .expectOutput(
-            "Super.java",
+            "ModRef.java",
             "package com.uber;",
             "import javax.annotation.Nullable;",
-            "public class Super {",
-            "   @Nullable Object test(Object flag, String name, String lastname) {",
-            "       if(flag == null) {",
-            "           return new Object();",
-            "       }",
-            "       else return new Object();",
-            "   }",
-            "   Object test(Object flag, @Nullable Object name, String lastname) {",
-            "       if(flag == null) {",
-            "           return new Object();",
-            "       }",
-            "       else return new Object();",
+            "public class ModRef<T extends InstanceKey> {",
+            "   public Map<CGNode, OrdinalSet<PointerKey>> computeMod(",
+            "     CallGraph cg, PointerAnalysis<T> pa, @Nullable HeapExclusions heapExclude) {",
+            "     if (cg == null) {",
+            "       throw new IllegalArgumentException(\"cg is null\");",
+            "     }",
+            "     Map<CGNode, Collection<PointerKey>> scan = scanForMod(cg, pa, heapExclude);",
+            "     return CallGraphTransitiveClosure.transitiveClosure(cg, scan);",
             "   }",
             "}")
         .addFixes(
             new Fix(
                 "javax.annotation.Nullable",
-                "test(Object, String, String)",
-                "",
-                "METHOD_RETURN",
-                "",
-                "com.uber.Super",
-                "com.uber",
-                "Super.java",
-                "true"),
-            new Fix(
-                "javax.annotation.Nullable",
-                "test(Object, Object, String)",
-                "name",
+                "computeMod(com.ibm.wala.ipa.callgraph.CallGraph,com.ibm.wala.ipa.callgraph.propagation.PointerAnalysis<T>,com.ibm.wala.ipa.slicer.HeapExclusions)",
+                "heapExclude",
                 "METHOD_PARAM",
                 "",
-                "com.uber.Super",
+                "com.uber.ModRef",
                 "com.uber",
-                "../out/Super.java",
+                "ModRef.java",
                 "true"))
         .start();
   }
@@ -465,3 +512,20 @@ public class BasicTest {
         .start();
   }
 }
+
+// todo: test these later:
+
+//  For method pick (multiple Generics)
+//  public <A extends AbstractValue<A>, S extends Store<S>, T extends TransferFunction<A, S>>
+//  S test(TransferFunction<A, S> s, Context context, T transfer) {
+//    return null;
+//  }
+
+//  For method pick (For Class<T> as argument
+//  public static <T extends Shape> void drawWithShadow(T shape, Class<T> shapeClass) {
+//    // The shadow must be the same shape as what's passed in
+//    T shadow = shapeClass.newInstance();
+//    // Set the shadow's properties to from the shape...
+//    shadow.draw(); // First, draw the shadow
+//    shape.draw();  // Now draw the shape on top of it
+//  }

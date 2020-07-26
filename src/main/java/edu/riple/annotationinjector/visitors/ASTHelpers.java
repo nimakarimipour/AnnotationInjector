@@ -66,6 +66,12 @@ public class ASTHelpers {
       paramsTypesInSignature = new String[0];
     ArrayList<String> paramTypes =
         (ArrayList<String>) extractParamTypesOfMethodInString(methodDecl);
+
+    System.out.println("Printing paramsTypesInSignature");
+    for (String s : paramsTypesInSignature) System.out.println(s);
+    System.out.println("paramTypes");
+    for (String s : paramTypes) System.out.println(s);
+
     if (paramTypes.size() != paramsTypesInSignature.length) return false;
     for (String i : paramsTypesInSignature) {
       String found = null;
@@ -83,7 +89,11 @@ public class ASTHelpers {
   public static String lastName(String name) {
     if (!name.contains(".")) return name;
     String[] names = name.split("\\.");
-    return names[names.length - 1];
+    String res = names[names.length - 1];
+    if(res.contains("<")){
+      res = res.substring(0, res.indexOf("<"));
+    }
+    return res;
   }
 
   public static List<String> extractParamTypesOfMethodInString(J.MethodDecl methodDecl) {
