@@ -146,12 +146,26 @@ public class ASTHelpers {
   }
 
   public static String getFullNameOfType(J.VariableDecls variableDecls) {
+    int numOfDims = variableDecls.getVars().get(0).getDimensionsAfterName().size();
+    if(numOfDims == 0) numOfDims = variableDecls.getDimensionsBeforeName().size();
     String begin = variableDecls.getTypeExpr().print();
     int index = 0;
     while (index < begin.length() && (begin.charAt(index) == ' ' || begin.charAt(index) == '\n')) index++;
     begin = begin.substring(index);
     String fullName = variableDecls.print();
     fullName = fullName.substring(fullName.indexOf(begin));
-    return fullName.substring(0, fullName.lastIndexOf(" ")).replaceAll(" ", "").replace("\n", "");
+    StringBuilder ans = new StringBuilder(fullName.substring(0, fullName.lastIndexOf(" ")).replaceAll(" ", "").replace("\n", ""));
+    int lastIndex = 0;
+    int count = 0;
+    while(lastIndex != -1){
+      lastIndex = ans.toString().indexOf("[]",lastIndex);
+      if(lastIndex != -1){
+        count ++;
+        lastIndex += "[]".length();
+      }
+    }
+    numOfDims -= count;
+    for (int i = 0; i < numOfDims; i++) ans.append("[]");
+    return ans.toString();
   }
 }

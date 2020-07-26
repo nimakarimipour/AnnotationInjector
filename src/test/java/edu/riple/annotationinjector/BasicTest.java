@@ -238,6 +238,45 @@ public class BasicTest {
   }
 
   @Test
+  public void return_nullable_signature_array_brackets() {
+    String rootName = "return_nullable_signature_array_front_brackets";
+
+    new InjectorTestHelper()
+        .setRootPath(System.getProperty("user.dir") + "/tests/" + rootName)
+        .addInput(
+            "Super.java",
+            "package com.uber;",
+            "public class Super {",
+            "   protected CGNode getTargetForCall(",
+            "     CGNode caller[], CallSiteReference[][][] site, IClass recv, InstanceKey iKey[][]) {",
+            "     return null;",
+            "   }",
+            "}")
+        .expectOutput(
+            "Super.java",
+            "package com.uber;",
+            "import javax.annotation.Nullable;",
+            "public class Super {",
+            "   @Nullable protected CGNode getTargetForCall(",
+            "     CGNode caller[], CallSiteReference[][][] site, IClass recv, InstanceKey iKey[][]) {",
+            "     return null;",
+            "   }",
+            "}")
+        .addFixes(
+            new Fix(
+                "javax.annotation.Nullable",
+                "getTargetForCall(com.ibm.wala.ipa.callgraph.CGNode[],com.ibm.wala.classLoader.CallSiteReference[][][],com.ibm.wala.classLoader.IClass,com.ibm.wala.ipa.callgraph.propagation.InstanceKey[][])",
+                "",
+                "METHOD_RETURN",
+                "",
+                "com.uber.Super",
+                "com.uber",
+                "Super.java",
+                "true"))
+        .start();
+  }
+
+  @Test
   public void param_nullable_simple() {
     String rootName = "param_nullable_simple";
 
