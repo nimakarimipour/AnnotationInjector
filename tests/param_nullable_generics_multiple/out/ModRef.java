@@ -1,5 +1,7 @@
 package com.uber;
+
 import javax.annotation.Nullable;
+
 public class ModRef {
    public ModRef(
        IMethod method,

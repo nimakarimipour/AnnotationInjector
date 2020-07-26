@@ -415,6 +415,7 @@ public class BasicTest {
         .expectOutput(
             "ModRef.java",
             "package com.uber;",
+            "import javax.annotation.Nullable;",
             "public class ModRef {",
             "   public ModRef(",
             "       IMethod method,",
@@ -422,7 +423,7 @@ public class BasicTest {
             "       AbstractCFG<?, ?> cfg,",
             "       SSAInstruction[] instructions,",
             "       SSAOptions options,",
-            "       Map<Integer, ConstantValue> constants)",
+            "       @Nullable Map<Integer, ConstantValue> constants)",
             "       throws AssertionError {",
             "           super(",
             "               method, ",

@@ -56,12 +56,13 @@ public class ASTHelpers {
     List<String> paramsTypesInSignature = extractParamTypesOfMethodInString(signature);
     List<String> paramTypes = extractParamTypesOfMethodInString(methodDecl);
 
-    //    System.out.println("Printing paramsTypesInSignature");
-    //    for (String s : paramsTypesInSignature) System.out.println(s);
-    //    System.out.println("end");
-    //    System.out.println("Printing paramTypes");
-    //    for (String s : paramTypes) System.out.println(s);
-    //    System.out.println("end");
+    System.out.println("Printing paramsTypesInSignature");
+    for (String s : paramsTypesInSignature)
+      System.out.println(s + " ,last name is: " + lastName(s));
+    System.out.println("end");
+    System.out.println("Printing paramTypes");
+    for (String s : paramTypes) System.out.println(s + " ,last name is: " + lastName(s));
+    System.out.println("end");
 
     if (paramTypes.size() != paramsTypesInSignature.size()) return false;
     for (String i : paramsTypesInSignature) {
@@ -78,13 +79,29 @@ public class ASTHelpers {
   }
 
   public static String lastName(String name) {
-    if (!name.contains(".")) return name;
-    String[] names = name.split("\\.");
-    String res = names[names.length - 1];
-    if (res.contains("<")) {
-      res = res.substring(0, res.indexOf("<"));
+    int index = 0;
+    StringBuilder ans = new StringBuilder();
+    StringBuilder tmp = new StringBuilder();
+    while (index < name.length()) {
+      char c = name.charAt(index);
+      switch (c) {
+        case '<':
+        case '>':
+        case ',':
+          ans.append(tmp);
+          ans.append(c);
+          tmp = new StringBuilder();
+          break;
+        case '.':
+          tmp = new StringBuilder();
+          break;
+        default:
+          tmp.append(c);
+      }
+      index++;
     }
-    return res;
+    if(name.length() > 0) ans.append(tmp);
+    return ans.toString();
   }
 
   public static List<String> extractParamTypesOfMethodInString(String signature) {
@@ -138,10 +155,12 @@ public class ASTHelpers {
   }
 
   public static String getFullNameOfType(J.VariableDecls variableDecls) {
-    if (variableDecls.getTypeExpr().getType() != null) {
-      String primeType = variableDecls.getTypeExpr().getType().toTypeTree().print();
-      if (variableDecls.print().replace(" ", "").contains("[]")) primeType += "[]";
-      return primeType;
-    } else return variableDecls.getTypeExpr().print();
+    String begin = variableDecls.getTypeExpr().print();
+    int index = 0;
+    while (index < begin.length() && (begin.charAt(index) == ' ' || begin.charAt(index) == '\n')) index++;
+    begin = begin.substring(index);
+    String fullName = variableDecls.print();
+    fullName = fullName.substring(fullName.indexOf(begin));
+    return fullName.substring(0, fullName.lastIndexOf(" ")).replaceAll(" ", "").replace("\n", "");
   }
 }
