@@ -128,7 +128,7 @@ public class ASTHelpers {
       }
       index++;
     }
-    if (signature.length() > 1 && generic_level == 0) ans.add(tmp.toString());
+    if (signature.length() > 0 && generic_level == 0) ans.add(tmp.toString());
     return ans;
   }
 

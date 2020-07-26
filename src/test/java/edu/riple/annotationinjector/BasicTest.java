@@ -198,6 +198,46 @@ public class BasicTest {
   }
 
   @Test
+  public void return_nullable_single_generic_method_pick() {
+    String rootName = "return_nullable_single_generic_method_pick";
+
+    new InjectorTestHelper()
+        .setRootPath(System.getProperty("user.dir") + "/tests/" + rootName)
+        .addInput(
+            "Super.java",
+            "package com.uber;",
+            "public class Super {",
+            "   public IntSet getPredNodeNumbers(T node) throws UnimplementedError {",
+            "       Assertions.UNREACHABLE();",
+            "       return null;",
+            "   }",
+            "}")
+        .expectOutput(
+            "Super.java",
+            "package com.uber;",
+            "import javax.annotation.Nullable;",
+            "public class Super {",
+            "   @Nullable",
+            "   public IntSet getPredNodeNumbers(T node) throws UnimplementedError {",
+            "       Assertions.UNREACHABLE();",
+            "       return null;",
+            "   }",
+            "}")
+        .addFixes(
+            new Fix(
+                "javax.annotation.Nullable",
+                "getPredNodeNumbers(T)",
+                "",
+                "METHOD_RETURN",
+                "",
+                "com.uber.Super",
+                "com.uber",
+                "Super.java",
+                "true"))
+        .start();
+  }
+
+  @Test
   public void param_nullable_simple() {
     String rootName = "param_nullable_simple";
 
