@@ -521,6 +521,9 @@ public class BasicTest {
 //    return null;
 //  }
 
+// For method pick (For Generics as argument)
+// ArrayList<String> vs ArrayList<Object>
+
 //  For method pick (For Class<T> as argument
 //  public static <T extends Shape> void drawWithShadow(T shape, Class<T> shapeClass) {
 //    // The shadow must be the same shape as what's passed in
