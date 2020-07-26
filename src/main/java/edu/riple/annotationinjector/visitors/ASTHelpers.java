@@ -55,15 +55,6 @@ public class ASTHelpers {
       return false;
     List<String> paramsTypesInSignature = extractParamTypesOfMethodInString(signature);
     List<String> paramTypes = extractParamTypesOfMethodInString(methodDecl);
-
-    System.out.println("Printing paramsTypesInSignature");
-    for (String s : paramsTypesInSignature)
-      System.out.println(s + " ,last name is: " + lastName(s));
-    System.out.println("end");
-    System.out.println("Printing paramTypes");
-    for (String s : paramTypes) System.out.println(s + " ,last name is: " + lastName(s));
-    System.out.println("end");
-
     if (paramTypes.size() != paramsTypesInSignature.size()) return false;
     for (String i : paramsTypesInSignature) {
       String found = null;
