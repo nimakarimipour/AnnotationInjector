@@ -1,5 +1,6 @@
 package edu.riple.annotationinjector;
 
+import edu.riple.annotationinjector.visitors.ASTHelpers;
 import edu.riple.annotationinjector.visitors.AddClassFieldAnnotation;
 import edu.riple.annotationinjector.visitors.AddMethodParamAnnotation;
 import edu.riple.annotationinjector.visitors.AddMethodReturnAnnotation;
@@ -64,6 +65,7 @@ public class Injector {
 
   public void start() {
     fixes = readFixes();
+    System.out.println("NullAway found " + fixes.size() + " number of fixes");
     applyFixes();
   }
 
@@ -72,7 +74,7 @@ public class Injector {
     Refactor refactor = null;
     for (Fix fix : fixes) {
       if(!addedImports.contains(fix.annotation)) addedImports.add(fix.annotation);
-      System.out.println("Applying Fix:" + fix);
+      System.out.println("Processing " + ASTHelpers.lastName(fix.className) + ", for method: " + fix.method + "|" + fix.location);
       tree = getTree(fix);
       if(!cleanImports) saveImport(tree);
       switch (fix.location) {
