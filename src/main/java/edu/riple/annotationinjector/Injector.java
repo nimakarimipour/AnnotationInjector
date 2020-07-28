@@ -22,6 +22,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.List;
 
 @SuppressWarnings(
     "UnusedVariable") // todo: Remove this later, this class is still under construction
@@ -32,13 +33,17 @@ public class Injector {
   private ArrayList<Fix> fixes;
   private final MODE mode;
 
+  private final boolean cleanImports;
+  private List<J.Import> imports;
+
   public enum MODE {
     OVERWRITE,
     TEST
   }
 
-  public Injector(MODE mode) {
+  public Injector(MODE mode, boolean cleanImports) {
     this.mode = mode;
+    this.cleanImports = cleanImports;
     parser =
         Java8Parser.builder()
             .relaxedClassTypeMatching(true)
@@ -47,7 +52,7 @@ public class Injector {
   }
 
   public Injector() {
-    this(MODE.OVERWRITE);
+    this(MODE.OVERWRITE, false);
   }
 
   public static InjectorBuilder builder(MODE mode) {
@@ -65,6 +70,7 @@ public class Injector {
     for (Fix fix : fixes) {
       System.out.println("Applying Fix:" + fix);
       tree = getTree(fix);
+      if(!cleanImports) saveImport(tree);
       switch (fix.location) {
         case "CLASS_FIELD":
           refactor = new AddClassFieldAnnotation(fix, tree);
@@ -88,10 +94,23 @@ public class Injector {
     }
   }
 
+  private void saveImport(J.CompilationUnit tree) {
+    List<J.Import> tmp = tree.getImports();
+    imports = new ArrayList<>(tmp);
+    tmp.clear();
+  }
+
   private void overWriteToFile(Change<J.CompilationUnit> change, Fix fix) {
     String path = fix.uri;
     if (mode.equals(MODE.TEST)) {
       path = path.replace("src", "out");
+    }
+    if(!cleanImports) {
+      for(J.Import imp: imports){
+        if(!change.getFixed().hasImport(imp.getTypeName())){
+          change.getFixed().getImports().add(imp);
+        }
+      }
     }
     String input = change.getFixed().print();
     String pathToFileDirectory = path.substring(0, path.lastIndexOf("/"));
@@ -147,7 +166,11 @@ public class Injector {
     private final Injector injector;
 
     public InjectorBuilder(MODE mode) {
-      injector = new Injector(mode);
+      injector = new Injector(mode, false);
+    }
+
+    public InjectorBuilder(MODE mode, boolean cleanImports) {
+      injector = new Injector(mode, cleanImports);
     }
 
     public InjectorBuilder setFixesJsonFilePath(String path) {
