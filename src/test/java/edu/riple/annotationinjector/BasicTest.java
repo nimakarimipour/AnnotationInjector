@@ -657,6 +657,56 @@ public class BasicTest {
         .addFixes(fix, fix.duplicate(), fix.duplicate())
         .start();
   }
+
+  @Test
+  public void save_imports() {
+    String rootName = "save_imports";
+    new InjectorTestHelper()
+        .setRootPath(System.getProperty("user.dir") + "/tests/" + rootName)
+        .addInput(
+            "Super.java",
+            "package com.uber;",
+            "import static com.ibm.wala.types.TypeName.ArrayMask;",
+            "import static com.ibm.wala.types.TypeName.ElementBits;",
+            "import static com.ibm.wala.types.TypeName.PrimitiveMask;",
+            "import com.ibm.wala.types.TypeName.IntegerMask;",
+            "import com.ibm.wala.util.collections.HashMapFactory;",
+            "import java.io.Serializable;",
+            "import java.util.Map;",
+            "public class Super {",
+            "   Object test() {",
+            "       return new Object();",
+            "   }",
+            "}")
+        .expectOutput(
+            "Super.java",
+            "package com.uber;",
+            "import javax.annotation.Nullable;",
+            "import static com.ibm.wala.types.TypeName.ArrayMask;",
+            "import static com.ibm.wala.types.TypeName.ElementBits;",
+            "import static com.ibm.wala.types.TypeName.PrimitiveMask;",
+            "import com.ibm.wala.types.TypeName.IntegerMask;",
+            "import com.ibm.wala.util.collections.HashMapFactory;",
+            "import java.io.Serializable;",
+            "import java.util.Map;",
+            "public class Super {",
+            "   @Nullable Object test() {",
+            "       return new Object();",
+            "   }",
+            "}")
+        .addFixes(
+            new Fix(
+                "javax.annotation.Nullable",
+                "test()",
+                "",
+                "METHOD_RETURN",
+                "",
+                "com.uber.Super",
+                "com.uber",
+                "Super.java",
+                "true"))
+        .start();
+  }
 }
 
 // todo: test these later:

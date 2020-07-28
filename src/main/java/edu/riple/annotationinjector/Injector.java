@@ -35,6 +35,8 @@ public class Injector {
 
   private final boolean cleanImports;
   private List<J.Import> imports;
+  private final List<String> addedImports;
+
 
   public enum MODE {
     OVERWRITE,
@@ -44,6 +46,7 @@ public class Injector {
   public Injector(MODE mode, boolean cleanImports) {
     this.mode = mode;
     this.cleanImports = cleanImports;
+    addedImports = new ArrayList<>();
     parser =
         Java8Parser.builder()
             .relaxedClassTypeMatching(true)
@@ -68,6 +71,7 @@ public class Injector {
     J.CompilationUnit tree;
     Refactor refactor = null;
     for (Fix fix : fixes) {
+      if(!addedImports.contains(fix.annotation)) addedImports.add(fix.annotation);
       System.out.println("Applying Fix:" + fix);
       tree = getTree(fix);
       if(!cleanImports) saveImport(tree);
@@ -106,11 +110,9 @@ public class Injector {
       path = path.replace("src", "out");
     }
     if(!cleanImports) {
-      for(J.Import imp: imports){
-        if(!change.getFixed().hasImport(imp.getTypeName())){
-          change.getFixed().getImports().add(imp);
-        }
-      }
+      ArrayList<J.Import> tmp = new ArrayList<>();
+      for(J.Import imp: imports) if(!addedImports.contains(imp.getTypeName())) tmp.add(imp);
+      change.getFixed().getImports().addAll(tmp);
     }
     String input = change.getFixed().print();
     String pathToFileDirectory = path.substring(0, path.lastIndexOf("/"));
