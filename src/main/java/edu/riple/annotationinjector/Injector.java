@@ -30,13 +30,14 @@ import java.util.List;
 public class Injector {
 
   private final JavaParser parser;
+  private final MODE mode;
+  private final boolean cleanImports;
+  private final List<String> addedImports;
+  private List<J.Import> imports;
   private Path fixesFilePath;
   private ArrayList<Fix> fixes;
-  private final MODE mode;
-
-  private final boolean cleanImports;
-  private List<J.Import> imports;
-  private final List<String> addedImports;
+  private int counter = 0;
+  private int numOfFixed = 0;
 
 
   public enum MODE {
@@ -67,6 +68,7 @@ public class Injector {
     fixes = readFixes();
     System.out.println("NullAway found " + fixes.size() + " number of fixes");
     applyFixes();
+    System.out.println("Processed " + counter + " fixes and applied " + numOfFixed + " number of fixes");
   }
 
   private void applyFixes() {
@@ -74,7 +76,7 @@ public class Injector {
     Refactor refactor = null;
     for (Fix fix : fixes) {
       if(!addedImports.contains(fix.annotation)) addedImports.add(fix.annotation);
-      System.out.println("Processing " + ASTHelpers.lastName(fix.className) + ", for method: " + fix.method + "|" + fix.location);
+      System.out.println(counter + ":Processing " + ASTHelpers.lastName(fix.className) + ", for method: " + fix.method + "|" + fix.location);
       tree = getTree(fix);
       if(!cleanImports) saveImport(tree);
       switch (fix.location) {
@@ -92,11 +94,15 @@ public class Injector {
         default:
           throw new RuntimeException("Undefined location: " + fix.location);
       }
-      if (refactor == null) System.out.println("Skipped...");
+      if (refactor == null) {
+        System.out.println("Skipped...");
+      }
       else {
+        numOfFixed++;
         Change<J.CompilationUnit> changed = tree.refactor().visit(refactor.build()).fix();
         overWriteToFile(changed, fix);
       }
+      counter++;
     }
   }
 
