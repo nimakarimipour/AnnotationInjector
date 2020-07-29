@@ -10,7 +10,6 @@ public class Fix {
     public final String method;
     public final String param;
     public final String location;
-    public final String modifiers;
     public final String className;
     public final String pkg;
     public final String inject;
@@ -21,7 +20,6 @@ public class Fix {
         PARAM("param"),
         METHOD("method"),
         LOCATION("location"),
-        MODIFIERS("modifiers"),
         CLASS("class"),
         PKG("pkg"),
         URI("uri"),
@@ -44,7 +42,6 @@ public class Fix {
             String method,
             String param,
             String location,
-            String modifiers,
             String className,
             String pkg,
             String uri,
@@ -53,7 +50,6 @@ public class Fix {
         this.method = method;
         this.param = param;
         this.location = location;
-        this.modifiers = modifiers;
         this.className = className;
         this.pkg = pkg;
         this.uri = uri;
@@ -70,7 +66,6 @@ public class Fix {
                 fix.get(KEYS.METHOD.label).toString(),
                 fix.get(KEYS.PARAM.label).toString(),
                 fix.get(KEYS.LOCATION.label).toString(),
-                fix.get(KEYS.MODIFIERS.label).toString(),
                 fix.get(KEYS.CLASS.label).toString(),
                 fix.get(KEYS.PKG.label).toString(),
                 uri,
@@ -91,9 +86,6 @@ public class Fix {
                 + '\''
                 + ", \n\tlocation='"
                 + location
-                + '\''
-                + ", \n\tmodifiers='"
-                + modifiers
                 + '\''
                 + ", \n\tclassName='"
                 + className
@@ -119,7 +111,6 @@ public class Fix {
                 && Objects.equals(method, fix.method)
                 && Objects.equals(param, fix.param)
                 && Objects.equals(location, fix.location)
-                && Objects.equals(modifiers, fix.modifiers)
                 && Objects.equals(className, fix.className)
                 && Objects.equals(pkg, fix.pkg)
                 && Objects.equals(inject, fix.inject)
@@ -129,7 +120,7 @@ public class Fix {
     @Override
     public int hashCode() {
         return Objects.hash(
-                annotation, method, param, location, modifiers, className, pkg, inject, uri);
+                annotation, method, param, location, className, pkg, inject, uri);
     }
 
     public JSONObject getJson() {
@@ -141,7 +132,6 @@ public class Fix {
         res.put(KEYS.PKG.label, pkg);
         res.put(KEYS.ANNOTATION.label, annotation);
         res.put(KEYS.INJECT.label, inject);
-        res.put(KEYS.MODIFIERS.label, modifiers);
         res.put(KEYS.URI.label, uri);
         return res;
     }
@@ -152,7 +142,6 @@ public class Fix {
                 method,
                 param,
                 location,
-                modifiers,
                 className,
                 pkg,
                 uri,
