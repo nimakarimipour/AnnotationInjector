@@ -270,6 +270,42 @@ public class BasicTest {
   }
 
   @Test
+  public void return_nullable_signature_generic_method_name() {
+    String rootName = "return_nullable_signature_generic_method_name";
+
+    new InjectorTestHelper()
+        .setRootPath(System.getProperty("user.dir") + "/tests/" + rootName)
+        .addInput(
+            "Super.java",
+            "package com.uber;",
+            "public class Super {",
+            "   static <T> T getReader(ClassReader.AttrIterator iter, String attrName, GetReader<T> reader) {",
+            "     return null;",
+            "   }",
+            "}")
+        .expectOutput(
+            "Super.java",
+            "package com.uber;",
+            "import javax.annotation.Nullable;",
+            "public class Super {",
+            "   @Nullable static <T> T getReader(ClassReader.AttrIterator iter, String attrName, GetReader<T> reader) {",
+            "     return null;",
+            "   }",
+            "}")
+        .addFixes(
+            new Fix(
+                "javax.annotation.Nullable",
+                "<T>getReader(com.ibm.wala.shrikeCT.ClassReader.AttrIterator,java.lang.String,com.ibm.wala.classLoader.ShrikeClass.GetReader<T>)",
+                "",
+                "METHOD_RETURN",
+                "com.uber.Super",
+                "com.uber",
+                "Super.java",
+                "true"))
+        .start();
+  }
+
+  @Test
   public void param_nullable_simple() {
     String rootName = "param_nullable_simple";
 

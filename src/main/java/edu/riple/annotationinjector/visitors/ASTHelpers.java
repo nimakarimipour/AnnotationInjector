@@ -50,8 +50,26 @@ public class ASTHelpers {
     return null;
   }
 
+  public static String extractMethodName(String signature) {
+    StringBuilder ans = new StringBuilder();
+    int level = 0;
+    for (int i = 0; i < signature.length(); i++) {
+      char current = signature.charAt(i);
+      if(current == '(') break;
+      switch (current){
+        case '>': ++level;
+        break;
+        case '<': --level;
+        break;
+        default:
+          if(level == 0) ans.append(current);
+      }
+    }
+    return ans.toString();
+  }
+
   public static boolean matchesMethodSignature(J.MethodDecl methodDecl, String signature) {
-    if (!methodDecl.getSimpleName().equals(signature.substring(0, signature.indexOf("("))))
+    if (!methodDecl.getSimpleName().equals(extractMethodName(signature)))
       return false;
     List<String> paramsTypesInSignature = extractParamTypesOfMethodInString(signature);
     List<String> paramTypes = extractParamTypesOfMethodInString(methodDecl);
