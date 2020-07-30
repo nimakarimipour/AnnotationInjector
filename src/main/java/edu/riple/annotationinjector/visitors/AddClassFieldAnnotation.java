@@ -14,7 +14,7 @@ public class AddClassFieldAnnotation extends Refactor {
   @Override
   public JavaRefactorVisitor build() {
     J.ClassDecl classDecl = ASTHelpers.findClassDecl(tree, fix.className);
-    if (classDecl == null) throw new RuntimeException("No class found associated to fix: " + fix);
+    if (classDecl == null) return null;
     J.VariableDecls variableDecls = null;
     for (J.VariableDecls v : classDecl.getFields()) {
       for(J.VariableDecls.NamedVar namedVar : v.getVars()){

@@ -12,6 +12,7 @@ import org.json.simple.parser.ParseException;
 import org.openrewrite.Change;
 import org.openrewrite.java.Java8Parser;
 import org.openrewrite.java.JavaParser;
+import org.openrewrite.java.JavaRefactorVisitor;
 import org.openrewrite.java.tree.J;
 
 import java.io.BufferedReader;
@@ -94,12 +95,14 @@ public class Injector {
         default:
           throw new RuntimeException("Undefined location: " + fix.location);
       }
-      if (refactor == null) {
-        System.out.println("Skipped...");
+      if(refactor == null) continue;
+      JavaRefactorVisitor refactorVisitor = refactor.build();
+      if (refactorVisitor == null) {
+        System.out.println("Skipped!");
       }
       else {
         numOfFixed++;
-        Change<J.CompilationUnit> changed = tree.refactor().visit(refactor.build()).fix();
+        Change<J.CompilationUnit> changed = tree.refactor().visit(refactorVisitor).fix();
         overWriteToFile(changed, fix);
       }
       counter++;

@@ -36,13 +36,6 @@ public class ASTHelpers {
     return null;
   }
 
-  public static J.MethodDecl findMethodDecl(J.CompilationUnit tree, Fix fix) {
-    J.ClassDecl classDecl = ASTHelpers.findClassDecl(tree, fix.className);
-    if (classDecl == null)
-      throw new RuntimeException("Could not find the class associated to fix: " + fix);
-    return ASTHelpers.findMethodDecl(classDecl, fix.method);
-  }
-
   public static J.MethodDecl findMethodDecl(J.ClassDecl classDecl, String signature) {
     for (J.MethodDecl methodDecl : classDecl.getMethods()) {
       if (matchesMethodSignature(methodDecl, signature)) return methodDecl;
