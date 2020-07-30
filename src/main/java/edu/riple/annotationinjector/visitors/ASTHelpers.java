@@ -94,6 +94,7 @@ public class ASTHelpers {
     while (index < name.length()) {
       char c = name.charAt(index);
       switch (c) {
+        case ' ':
         case '<':
         case '>':
         case ',':
@@ -110,7 +111,7 @@ public class ASTHelpers {
       index++;
     }
     if(name.length() > 0) ans.append(tmp);
-    return ans.toString();
+    return ans.toString().replaceAll(" ", "");
   }
 
   public static List<String> extractParamTypesOfMethodInString(String signature) {
@@ -118,8 +119,7 @@ public class ASTHelpers {
         signature
             .substring(signature.indexOf("("))
             .replace("(", "")
-            .replace(")", "")
-            .replaceAll(" ", "");
+            .replace(")", "");
     int index = 0;
     int generic_level = 0;
     List<String> ans = new ArrayList<>();

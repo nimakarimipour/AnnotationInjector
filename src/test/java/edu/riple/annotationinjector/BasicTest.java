@@ -206,6 +206,19 @@ public class BasicTest {
             "       Assertions.UNREACHABLE();",
             "       return null;",
             "   }",
+            "  OrdinalSet<Statement> computeResult(",
+            "        Statement s,",
+            "        Map<PointerKey, MutableIntSet> pointerKeyMod,",
+            "        BitVectorSolver<? extends ISSABasicBlock> solver,",
+            "        OrdinalSetMapping<Statement> domain,",
+            "        CGNode node,",
+            "        ExtendedHeapModel h,",
+            "        PointerAnalysis<T> pa,",
+            "        Map<CGNode, OrdinalSet<PointerKey>> mod,",
+            "        ExplodedControlFlowGraph cfg,",
+            "        Map<Integer, NormalStatement> ssaInstructionIndex2Statement) {",
+            "     return null;",
+            "   }",
             "}")
         .expectOutput(
             "Super.java",
@@ -217,6 +230,19 @@ public class BasicTest {
             "       Assertions.UNREACHABLE();",
             "       return null;",
             "   }",
+            "  @Nullable OrdinalSet<Statement> computeResult(",
+            "        Statement s,",
+            "        Map<PointerKey, MutableIntSet> pointerKeyMod,",
+            "        BitVectorSolver<? extends ISSABasicBlock> solver,",
+            "        OrdinalSetMapping<Statement> domain,",
+            "        CGNode node,",
+            "        ExtendedHeapModel h,",
+            "        PointerAnalysis<T> pa,",
+            "        Map<CGNode, OrdinalSet<PointerKey>> mod,",
+            "        ExplodedControlFlowGraph cfg,",
+            "        Map<Integer, NormalStatement> ssaInstructionIndex2Statement) {",
+            "     return null;",
+            "   }",
             "}")
         .addFixes(
             new Fix(
@@ -227,6 +253,15 @@ public class BasicTest {
                 "com.uber.Super",
                 "com.uber",
                 "Super.java",
+                "true"),
+            new Fix(
+                "javax.annotation.Nullable",
+                "computeResult(com.ibm.wala.ipa.slicer.Statement,java.util.Map<com.ibm.wala.ipa.callgraph.propagation.PointerKey,com.ibm.wala.util.intset.MutableIntSet>,com.ibm.wala.dataflow.graph.BitVectorSolver<? extends com.ibm.wala.ssa.ISSABasicBlock>,com.ibm.wala.util.intset.OrdinalSetMapping<com.ibm.wala.ipa.slicer.Statement>,com.ibm.wala.ipa.callgraph.CGNode,com.ibm.wala.ipa.modref.ExtendedHeapModel,com.ibm.wala.ipa.callgraph.propagation.PointerAnalysis<T>,java.util.Map<com.ibm.wala.ipa.callgraph.CGNode,com.ibm.wala.util.intset.OrdinalSet<com.ibm.wala.ipa.callgraph.propagation.PointerKey>>,com.ibm.wala.ssa.analysis.ExplodedControlFlowGraph,java.util.Map<java.lang.Integer,com.ibm.wala.ipa.slicer.NormalStatement>)",
+                "",
+                "METHOD_RETURN",
+                "com.uber.Super",
+                "com.uber",
+                "../out/Super.java",
                 "true"))
         .start();
   }
