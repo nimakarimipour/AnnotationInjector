@@ -143,9 +143,12 @@ public class Injector {
 
   private String postProcess(String text){
     ArrayList<Integer> indexes = new ArrayList<>();
-    final String innerClassInstantiationByReferenceRegex = "[a-zA-Z][a-zA-Z0-9_]*\\s*\\.\\s*new\\s+([a-zA-Z_$][a-zA-Z\\d_$]*\\.)*[a-zA-Z_$][a-zA-Z\\d_$]*+\\(";
+    final String innerClassInstantiationByReferenceRegex = "[a-zA-Z][a-zA-Z0-9_]*\\s*(\\(\\))?\\.\\s*new\\s+([a-zA-Z_$][a-zA-Z\\d_$]*\\.)*[a-zA-Z_$][a-zA-Z\\d_$]*+\\(";
     Matcher matcher = Pattern.compile(innerClassInstantiationByReferenceRegex).matcher(text);
-    while (matcher.find()) indexes.add(matcher.start());
+    while (matcher.find()) {
+      System.out.println("Group: " + matcher.group());
+      indexes.add(matcher.start());
+    }
     indexes.sort(Comparator.naturalOrder());
     StringBuilder sb = new StringBuilder(text.length());
     sb.append(text);

@@ -764,48 +764,50 @@ public class BasicTest {
   }
 
   @Test
-  public void remove_redundant_new_keyword(){
+  public void remove_redundant_new_keyword() {
     String rootName = "remove_redundant_new_keyword";
     new InjectorTestHelper()
-            .setRootPath(System.getProperty("user.dir") + "/tests/" + rootName)
-            .addInput(
-                    "Super.java",
-                    "package com.uber;",
-                    "public class Super {",
-                    "   Object test() {",
-                    "       return foo(this.new Bar(), this.new Foo());",
-                    "   }",
-                    "   Object foo(Bar b, Foo f) {",
-                    "     return Object();",
-                    "   }",
-                    "   class Foo{ }",
-                    "   class Bar{ }",
-                    "}")
-            .expectOutput(
-                    "Super.java",
-                    "package com.uber;",
-                    "import javax.annotation.Nullable;",
-                    "public class Super {",
-                    "   @Nullable Object test() {",
-                    "       return foo(this.new Bar(), this.new Foo());",
-                    "   }",
-                    "   Object foo(Bar b, Foo f) {",
-                    "     return Object();",
-                    "   }",
-                    "   class Foo{ }",
-                    "   class Bar{ }",
-                    "}")
-            .addFixes(
-                    new Fix(
-                            "javax.annotation.Nullable",
-                            "test()",
-                            "",
-                            "METHOD_RETURN",
-                            "com.uber.Super",
-                            "com.uber",
-                            "Super.java",
-                            "true"))
-            .start();
+        .setRootPath(System.getProperty("user.dir") + "/tests/" + rootName)
+        .addInput(
+            "Super.java",
+            "package com.uber;",
+            "public class Super {",
+            "   Object test() {",
+            "       init(this.new NodeVisitor(), this.new EdgeVisitor());\n",
+            "       return foo(this.new Bar(), this.new Foo(), getBuilder().new Foo());",
+            "   }",
+            "   Object foo(Bar b, Foo f) {",
+            "     return Object();",
+            "   }",
+            "   class Foo{ }",
+            "   class Bar{ }",
+            "}")
+        .expectOutput(
+            "Super.java",
+            "package com.uber;",
+            "import javax.annotation.Nullable;",
+            "public class Super {",
+            "   @Nullable Object test() {",
+            "       init(this.new NodeVisitor(), this.new EdgeVisitor());",
+            "       return foo(this.new Bar(), this.new Foo(), getBuilder().new Foo());",
+            "   }",
+            "   Object foo(Bar b, Foo f) {",
+            "     return Object();",
+            "   }",
+            "   class Foo{ }",
+            "   class Bar{ }",
+            "}")
+        .addFixes(
+            new Fix(
+                "javax.annotation.Nullable",
+                "test()",
+                "",
+                "METHOD_RETURN",
+                "com.uber.Super",
+                "com.uber",
+                "Super.java",
+                "true"))
+        .start();
   }
 }
 
