@@ -39,10 +39,10 @@ public class Injector {
   private final List<String> addedImports;
   private List<J.Import> imports;
   private Path fixesFilePath;
-  private ArrayList<Fix> fixes;
+  private ArrayList<WorkList> workLists;
+
   private int counter = 0;
   private int numOfFixed = 0;
-
 
   public enum MODE {
     OVERWRITE,
@@ -69,46 +69,57 @@ public class Injector {
   }
 
   public void start() {
-    fixes = readFixes();
-    System.out.println("NullAway found " + fixes.size() + " number of fixes");
+    workLists = readFixes();
+    int totalNumberOfFixes = 0;
+    for (WorkList workList : workLists) totalNumberOfFixes += workList.getFixes().size();
+    System.out.println("NullAway found " + totalNumberOfFixes + " number of fixes");
     applyFixes();
-    System.out.println("Processed " + counter + " fixes and applied " + numOfFixed + " number of fixes");
+    System.out.println(
+        "Processed " + counter + " fixes and applied " + numOfFixed + " number of fixes");
   }
 
   private void applyFixes() {
     J.CompilationUnit tree;
     Refactor refactor = null;
-    for (Fix fix : fixes) {
-      if(!addedImports.contains(fix.annotation)) addedImports.add(fix.annotation);
-      System.out.println(counter + ":Processing " + ASTHelpers.lastName(fix.className) + ", for method: " + fix.method + "|" + fix.location);
-      tree = getTree(fix);
-      if(!cleanImports) saveImport(tree);
-      switch (fix.location) {
-        case "CLASS_FIELD":
-          refactor = new AddClassFieldAnnotation(fix, tree);
-          break;
-        case "METHOD_LOCAL_VAR":
-          break;
-        case "METHOD_PARAM":
-          refactor = new AddMethodParamAnnotation(fix, tree);
-          break;
-        case "METHOD_RETURN":
-          refactor = new AddMethodReturnAnnotation(fix, tree);
-          break;
-        default:
-          throw new RuntimeException("Undefined location: " + fix.location);
+    for (WorkList workList : workLists) {
+      tree = getTree(workList.getUri());
+      workList.addContainingAnnotationsToList(addedImports);
+      System.out.println(counter + ":Processing " + ASTHelpers.lastName(workList.className()));
+      ArrayList<JavaRefactorVisitor> refactors = new ArrayList<>();
+      if (!cleanImports) saveImport(tree);
+      for (Fix fix : workList.getFixes()) {
+        switch (fix.location) {
+          case "CLASS_FIELD":
+            refactor = new AddClassFieldAnnotation(fix, tree);
+            break;
+          case "METHOD_LOCAL_VAR":
+            break;
+          case "METHOD_PARAM":
+            refactor = new AddMethodParamAnnotation(fix, tree);
+            break;
+          case "METHOD_RETURN":
+            refactor = new AddMethodReturnAnnotation(fix, tree);
+            break;
+          default:
+            throw new RuntimeException("Undefined location: " + fix.location);
+        }
+        if (refactor == null) continue;
+        JavaRefactorVisitor refactorVisitor = refactor.build();
+        if (refactorVisitor == null) {
+          System.out.println("Skipped!");
+        } else {
+          numOfFixed++;
+          refactors.add(refactorVisitor);
+        }
+        counter++;
       }
-      if(refactor == null) continue;
-      JavaRefactorVisitor refactorVisitor = refactor.build();
-      if (refactorVisitor == null) {
-        System.out.println("Skipped!");
+      Change<J.CompilationUnit> changed = null;
+      for (JavaRefactorVisitor r : refactors) {
+        if (changed == null) changed = tree.refactor().visit(r).fix();
+        else changed = changed.getFixed().refactor().visit(r).fix();
       }
-      else {
-        numOfFixed++;
-        Change<J.CompilationUnit> changed = tree.refactor().visit(refactorVisitor).fix();
-        overWriteToFile(changed, fix);
-      }
-      counter++;
+      if(changed != null)
+        overWriteToFile(changed, workList.getUri());
     }
   }
 
@@ -118,21 +129,20 @@ public class Injector {
     tmp.clear();
   }
 
-  private void overWriteToFile(Change<J.CompilationUnit> change, Fix fix) {
-    String path = fix.uri;
+  private void overWriteToFile(Change<J.CompilationUnit> change, String uri) {
     if (mode.equals(MODE.TEST)) {
-      path = path.replace("src", "out");
+      uri = uri.replace("src", "out");
     }
-    if(!cleanImports) {
+    if (!cleanImports) {
       ArrayList<J.Import> tmp = new ArrayList<>();
-      for(J.Import imp: imports) if(!addedImports.contains(imp.getTypeName())) tmp.add(imp);
+      for (J.Import imp : imports) if (!addedImports.contains(imp.getTypeName())) tmp.add(imp);
       change.getFixed().getImports().addAll(tmp);
     }
     String input = postProcess(change.getFixed().print());
-    String pathToFileDirectory = path.substring(0, path.lastIndexOf("/"));
+    String pathToFileDirectory = uri.substring(0, uri.lastIndexOf("/"));
     try {
       Files.createDirectories(Paths.get(pathToFileDirectory + "/"));
-      try (Writer writer = Files.newBufferedWriter(Paths.get(path), Charset.defaultCharset())) {
+      try (Writer writer = Files.newBufferedWriter(Paths.get(uri), Charset.defaultCharset())) {
         writer.write(input);
         writer.flush();
       }
@@ -141,14 +151,12 @@ public class Injector {
     }
   }
 
-  private String postProcess(String text){
+  private String postProcess(String text) {
     ArrayList<Integer> indexes = new ArrayList<>();
-    final String innerClassInstantiationByReferenceRegex = "[a-zA-Z][a-zA-Z0-9_]*\\s*(\\(\\))?\\.\\s*new\\s+([a-zA-Z_$][a-zA-Z\\d_$]*\\.)*[a-zA-Z_$][a-zA-Z\\d_$]*+\\(";
+    final String innerClassInstantiationByReferenceRegex =
+        "[a-zA-Z][a-zA-Z0-9_]*(\\(\\))?\\s*\\.\\s*new\\s+([a-zA-Z_$][a-zA-Z\\d_$]*\\.)*[a-zA-Z_$][a-zA-Z\\d_$]*+\\(";
     Matcher matcher = Pattern.compile(innerClassInstantiationByReferenceRegex).matcher(text);
-    while (matcher.find()) {
-      System.out.println("Group: " + matcher.group());
-      indexes.add(matcher.start());
-    }
+    while (matcher.find()) indexes.add(matcher.start());
     indexes.sort(Comparator.naturalOrder());
     StringBuilder sb = new StringBuilder(text.length());
     sb.append(text);
@@ -160,17 +168,17 @@ public class Injector {
     return sb.toString();
   }
 
-  private J.CompilationUnit getTree(Fix fix) {
+  private J.CompilationUnit getTree(String uri) {
     ArrayList<Path> p = new ArrayList<>();
-    p.add(Paths.get(fix.uri));
+    p.add(Paths.get(uri));
     parser.reset();
     ArrayList<J.CompilationUnit> trees = (ArrayList<J.CompilationUnit>) parser.parse(p);
     if (trees == null || trees.size() != 1)
-      throw new RuntimeException("Error in crating AST tree for file at path: " + fix.uri);
+      throw new RuntimeException("Error in crating AST tree for file at path: " + uri);
     return trees.get(0);
   }
 
-  private ArrayList<Fix> readFixes() {
+  private ArrayList<WorkList> readFixes() {
     try {
       BufferedReader bufferedReader =
           Files.newBufferedReader(this.fixesFilePath, Charset.defaultCharset());
@@ -187,14 +195,26 @@ public class Injector {
     }
   }
 
-  private ArrayList<Fix> extractFixesFromJson(JSONArray fixesJson) {
-    ArrayList<Fix> fixes = new ArrayList<>();
+  private ArrayList<WorkList> extractFixesFromJson(JSONArray fixesJson) {
+    ArrayList<String> uris = new ArrayList<>();
+    ArrayList<WorkList> workLists = new ArrayList<>();
     for (Object o : fixesJson) {
       Fix fix = Fix.createFromJson((JSONObject) o);
-      if(!fixes.contains(fix))
-        fixes.add(fix);
+      if (!uris.contains(fix.uri)) {
+        uris.add(fix.uri);
+        WorkList workList = new WorkList(fix.uri);
+        workLists.add(workList);
+        workList.addFix(fix);
+      } else {
+        for (WorkList workList : workLists) {
+          if (workList.getUri().equals(fix.uri)) {
+            workList.addFix(fix);
+            break;
+          }
+        }
+      }
     }
-    return fixes;
+    return workLists;
   }
 
   public static class InjectorBuilder {

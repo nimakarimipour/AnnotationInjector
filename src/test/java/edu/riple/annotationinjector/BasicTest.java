@@ -8,10 +8,6 @@ import org.junit.runners.JUnit4;
 
 @RunWith(JUnit4.class)
 public class BasicTest {
-  // When applying a series of fixes to the same file, for each fix's uri, give the output address
-  // of the previous fix to keep the changes of previous processing
-  // In this case, for the second and the rest, "../out/" should be added at the beginning of every
-  // uri. (See return_nullable_signature_duplicate_type test)
 
   @Before
   public void setup() {}
@@ -187,7 +183,7 @@ public class BasicTest {
                 "METHOD_PARAM",
                 "com.uber.Super",
                 "com.uber",
-                "../out/Super.java",
+                "Super.java",
                 "true"))
         .start();
   }
@@ -261,7 +257,7 @@ public class BasicTest {
                 "METHOD_RETURN",
                 "com.uber.Super",
                 "com.uber",
-                "../out/Super.java",
+                "Super.java",
                 "true"))
         .start();
   }
