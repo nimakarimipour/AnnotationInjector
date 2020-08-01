@@ -24,7 +24,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @SuppressWarnings(
     "UnusedVariable") // todo: Remove this later, this class is still under construction
@@ -125,7 +128,7 @@ public class Injector {
       for(J.Import imp: imports) if(!addedImports.contains(imp.getTypeName())) tmp.add(imp);
       change.getFixed().getImports().addAll(tmp);
     }
-    String input = change.getFixed().print();
+    String input = postProcess(change.getFixed().print());
     String pathToFileDirectory = path.substring(0, path.lastIndexOf("/"));
     try {
       Files.createDirectories(Paths.get(pathToFileDirectory + "/"));
@@ -136,6 +139,22 @@ public class Injector {
     } catch (IOException e) {
       throw new RuntimeException("Something terrible happened.");
     }
+  }
+
+  private String postProcess(String text){
+    ArrayList<Integer> indexes = new ArrayList<>();
+    final String innerClassInstantiationByReferenceRegex = "[a-zA-Z][a-zA-Z0-9_]*\\s*\\.\\s*new\\s+([a-zA-Z_$][a-zA-Z\\d_$]*\\.)*[a-zA-Z_$][a-zA-Z\\d_$]*+\\(";
+    Matcher matcher = Pattern.compile(innerClassInstantiationByReferenceRegex).matcher(text);
+    while (matcher.find()) indexes.add(matcher.start());
+    indexes.sort(Comparator.naturalOrder());
+    StringBuilder sb = new StringBuilder(text.length());
+    sb.append(text);
+    int count = 0;
+    for (Integer index : indexes) {
+      sb.replace(index - (count * 3), index + 3 - (count * 3), "");
+      count++;
+    }
+    return sb.toString();
   }
 
   private J.CompilationUnit getTree(Fix fix) {
