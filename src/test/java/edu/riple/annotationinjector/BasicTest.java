@@ -8,15 +8,17 @@ import org.junit.runners.JUnit4;
 
 @RunWith(JUnit4.class)
 public class BasicTest {
+  InjectorTestHelper injectorTestHelper;
 
   @Before
   public void setup() {}
+
 
   @Test
   public void return_nullable_simple() {
     String rootName = "return_nullable_simple";
 
-    new InjectorTestHelper()
+    injectorTestHelper = new InjectorTestHelper()
         .setRootPath(System.getProperty("user.dir") + "/tests/" + rootName)
         .addInput(
             "Super.java",
@@ -72,8 +74,9 @@ public class BasicTest {
                 "com.uber.Superb",
                 "com.uber",
                 "com/Superb.java",
-                "true"))
-        .start();
+                "true"));
+    injectorTestHelper.start();
+    injectorTestHelper = null;
   }
 
   @Test

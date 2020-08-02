@@ -1,181 +1,98 @@
 package edu.riple.annotationinjector;
 
-import edu.riple.annotationinjector.visitors.ASTHelpers;
-import edu.riple.annotationinjector.visitors.AddClassFieldAnnotation;
-import edu.riple.annotationinjector.visitors.AddMethodParamAnnotation;
-import edu.riple.annotationinjector.visitors.AddMethodReturnAnnotation;
-import edu.riple.annotationinjector.visitors.Refactor;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import org.openrewrite.Change;
 import org.openrewrite.java.Java8Parser;
 import org.openrewrite.java.JavaParser;
-import org.openrewrite.java.JavaRefactorVisitor;
-import org.openrewrite.java.tree.J;
-
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 @SuppressWarnings(
     "UnusedVariable") // todo: Remove this later, this class is still under construction
 public class Injector {
 
-  private final JavaParser parser;
-  private final MODE mode;
-  private final boolean cleanImports;
-  private final List<String> addedImports;
-  private List<J.Import> imports;
-  private Path fixesFilePath;
-  private ArrayList<WorkList> workLists;
 
-  private int counter = 0;
-  private int numOfFixed = 0;
+  public final MODE mode;
+  private final boolean cleanImports;
+  private final Path fixesFilePath;
+  private final int numberOfMachines;
+
+  private int processed = 0;
 
   public enum MODE {
     OVERWRITE,
     TEST
   }
 
-  public Injector(MODE mode, boolean cleanImports) {
+  public Injector(MODE mode, boolean cleanImports, int numberOfMachines, String fixesFilePath) {
+    this.numberOfMachines = numberOfMachines;
     this.mode = mode;
     this.cleanImports = cleanImports;
-    addedImports = new ArrayList<>();
-    parser =
-        Java8Parser.builder()
-            .relaxedClassTypeMatching(true)
-            .logCompilationWarningsAndErrors(false)
-            .build();
+    this.fixesFilePath = Paths.get(fixesFilePath);
   }
 
   public Injector() {
-    this(MODE.OVERWRITE, false);
+    this(MODE.OVERWRITE, false, 1, "/tmp/NullAwayFix/");
   }
 
-  public static InjectorBuilder builder(MODE mode) {
-    return new InjectorBuilder(mode);
+  public static InjectorBuilder builder() {
+    return new InjectorBuilder();
   }
 
   public void start() {
-    workLists = readFixes();
+    ArrayList<WorkList> workLists = readFixes();
     int totalNumberOfFixes = 0;
     for (WorkList workList : workLists) totalNumberOfFixes += workList.getFixes().size();
     System.out.println("NullAway found " + totalNumberOfFixes + " number of fixes");
-    applyFixes();
-    System.out.println(
-        "Processed " + counter + " fixes and applied " + numOfFixed + " number of fixes");
-  }
-
-  private void applyFixes() {
-    J.CompilationUnit tree;
-    Refactor refactor = null;
-    for (WorkList workList : workLists) {
-      tree = getTree(workList.getUri());
-      workList.addContainingAnnotationsToList(addedImports);
-      System.out.println(counter + ":Processing " + ASTHelpers.lastName(workList.className()));
-      ArrayList<JavaRefactorVisitor> refactors = new ArrayList<>();
-      if (!cleanImports) saveImport(tree);
-      for (Fix fix : workList.getFixes()) {
-        switch (fix.location) {
-          case "CLASS_FIELD":
-            refactor = new AddClassFieldAnnotation(fix, tree);
-            break;
-          case "METHOD_LOCAL_VAR":
-            break;
-          case "METHOD_PARAM":
-            refactor = new AddMethodParamAnnotation(fix, tree);
-            break;
-          case "METHOD_RETURN":
-            refactor = new AddMethodReturnAnnotation(fix, tree);
-            break;
-          default:
-            throw new RuntimeException("Undefined location: " + fix.location);
-        }
-        if (refactor == null) continue;
-        JavaRefactorVisitor refactorVisitor = refactor.build();
-        if (refactorVisitor == null) {
-          System.out.println("Skipped!");
-        } else {
-          numOfFixed++;
-          refactors.add(refactorVisitor);
-        }
-        counter++;
-      }
-      Change<J.CompilationUnit> changed = null;
-      for (JavaRefactorVisitor r : refactors) {
-        if (changed == null) changed = tree.refactor().visit(r).fix();
-        else changed = changed.getFixed().refactor().visit(r).fix();
-      }
-      if(changed != null)
-        overWriteToFile(changed, workList.getUri());
-    }
-  }
-
-  private void saveImport(J.CompilationUnit tree) {
-    List<J.Import> tmp = tree.getImports();
-    imports = new ArrayList<>(tmp);
-    tmp.clear();
-  }
-
-  private void overWriteToFile(Change<J.CompilationUnit> change, String uri) {
     if (mode.equals(MODE.TEST)) {
-      uri = uri.replace("src", "out");
+      processed = new InjectorMachine(1, workLists, cleanImports, mode).call();
+      System.out.println(
+              "Received " + totalNumberOfFixes + " fixes and applied " + processed + " number of fixes");
+      return;
     }
-    if (!cleanImports) {
-      ArrayList<J.Import> tmp = new ArrayList<>();
-      for (J.Import imp : imports) if (!addedImports.contains(imp.getTypeName())) tmp.add(imp);
-      change.getFixed().getImports().addAll(tmp);
-    }
-    String input = postProcess(change.getFixed().print());
-    String pathToFileDirectory = uri.substring(0, uri.lastIndexOf("/"));
-    try {
-      Files.createDirectories(Paths.get(pathToFileDirectory + "/"));
-      try (Writer writer = Files.newBufferedWriter(Paths.get(uri), Charset.defaultCharset())) {
-        writer.write(input);
-        writer.flush();
+    final List<Callable<Integer>> workers = new ArrayList<>();
+    int realNumberOfMachines = totalNumberOfFixes > (numberOfMachines * 5) ? numberOfMachines : 1;
+    System.out.println("Number Of Instantiated Machines: " + realNumberOfMachines);
+    int size = workLists.size() / realNumberOfMachines;
+    for (int i = 0; i < realNumberOfMachines; i++) {
+      List<WorkList> machinesWorkList;
+      if (i == realNumberOfMachines - 1) {
+        machinesWorkList = workLists.subList(i * size, workLists.size());
+      } else {
+        machinesWorkList = workLists.subList(i * size, (i + 1) * size);
       }
-    } catch (IOException e) {
-      throw new RuntimeException("Something terrible happened.");
+      workers.add(new InjectorMachine(i+1, machinesWorkList, cleanImports, mode));
     }
-  }
-
-  private String postProcess(String text) {
-    ArrayList<Integer> indexes = new ArrayList<>();
-    final String innerClassInstantiationByReferenceRegex =
-        "[a-zA-Z][a-zA-Z0-9_]*(\\(\\))?\\s*\\.\\s*new\\s+([a-zA-Z_$][a-zA-Z\\d_$]*\\.)*[a-zA-Z_$][a-zA-Z\\d_$]*+\\(";
-    Matcher matcher = Pattern.compile(innerClassInstantiationByReferenceRegex).matcher(text);
-    while (matcher.find()) indexes.add(matcher.start());
-    indexes.sort(Comparator.naturalOrder());
-    StringBuilder sb = new StringBuilder(text.length());
-    sb.append(text);
-    int count = 0;
-    for (Integer index : indexes) {
-      sb.replace(index - (count * 3), index + 3 - (count * 3), "");
-      count++;
+    final ExecutorService pool = Executors.newFixedThreadPool(realNumberOfMachines);
+    try {
+      for (final Future<Integer> future : pool.invokeAll(workers)) {
+        processed += future.get();
+      }
+    } catch (ExecutionException ex) {
+      System.err.println("Injector executor faced an exception. (ExecutionException)");
+      ex.printStackTrace();
+    } catch (InterruptedException ex) {
+      System.err.println("Injector executor faced an exception. (InterruptedException)");
+      ex.printStackTrace();
     }
-    return sb.toString();
-  }
-
-  private J.CompilationUnit getTree(String uri) {
-    ArrayList<Path> p = new ArrayList<>();
-    p.add(Paths.get(uri));
-    parser.reset();
-    ArrayList<J.CompilationUnit> trees = (ArrayList<J.CompilationUnit>) parser.parse(p);
-    if (trees == null || trees.size() != 1)
-      throw new RuntimeException("Error in crating AST tree for file at path: " + uri);
-    return trees.get(0);
+    pool.shutdown();
+    System.out.println(
+        "Received " + totalNumberOfFixes + " fixes and applied " + processed + " number of fixes");
   }
 
   private ArrayList<WorkList> readFixes() {
@@ -218,23 +135,33 @@ public class Injector {
   }
 
   public static class InjectorBuilder {
-    private final Injector injector;
+    private String fixesFilePath = "/tmp/NullAwayFix/";
+    private int numberOfWorkers = 1;
+    private MODE mode = MODE.OVERWRITE;
+    private boolean cleanImports = false;
 
-    public InjectorBuilder(MODE mode) {
-      injector = new Injector(mode, false);
+    public InjectorBuilder setFixesJsonFilePath(String fixesFilePath) {
+      this.fixesFilePath = fixesFilePath;
+      return this;
     }
 
-    public InjectorBuilder(MODE mode, boolean cleanImports) {
-      injector = new Injector(mode, cleanImports);
+    public InjectorBuilder setMode(MODE mode){
+      this.mode = mode;
+      return this;
     }
 
-    public InjectorBuilder setFixesJsonFilePath(String path) {
-      injector.fixesFilePath = Paths.get(path);
+    public InjectorBuilder setCleanImports(boolean cleanImports){
+      this.cleanImports = cleanImports;
+      return this;
+    }
+
+    public InjectorBuilder setNumberOfWorkers(int numberOfWorkers){
+      this.numberOfWorkers  = numberOfWorkers;
       return this;
     }
 
     public Injector build() {
-      return injector;
+      return new Injector(mode, cleanImports, numberOfWorkers, fixesFilePath);
     }
   }
 }
