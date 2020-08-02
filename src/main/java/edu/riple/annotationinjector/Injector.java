@@ -29,8 +29,6 @@ public class Injector {
   private final Path fixesFilePath;
   private final int numberOfMachines;
 
-  private int processed = 0;
-
   public enum MODE {
     OVERWRITE,
     TEST
@@ -51,19 +49,19 @@ public class Injector {
     return new InjectorBuilder();
   }
 
-  public void start() {
+  public Report start() {
     ArrayList<WorkList> workLists = readFixes();
-    int totalNumberOfFixes = 0;
-    for (WorkList workList : workLists) totalNumberOfFixes += workList.getFixes().size();
-    System.out.println("NullAway found " + totalNumberOfFixes + " number of fixes");
+    Report report = new Report();
+    for (WorkList workList : workLists) report.totalNumberOfDistinctFixes += workList.getFixes().size();
+    System.out.println("NullAway found " + report.totalNumberOfDistinctFixes + " number of fixes");
     if (mode.equals(MODE.TEST) || numberOfMachines == 1) {
-      processed = new InjectorMachine(1, workLists, cleanImports, mode).call();
+      report.processed = new InjectorMachine(1, workLists, cleanImports, mode).call();
       System.out.println(
-              "Received " + totalNumberOfFixes + " fixes and applied " + processed + " number of fixes");
-      return;
+              "Received " + report.totalNumberOfDistinctFixes + " fixes and applied " + report.processed + " number of fixes");
+      return report;
     }
     final List<Callable<Integer>> workers = new ArrayList<>();
-    int realNumberOfMachines = totalNumberOfFixes > (numberOfMachines * 5) ? numberOfMachines : 1;
+    int realNumberOfMachines = report.totalNumberOfDistinctFixes > (numberOfMachines * 5) ? numberOfMachines : 1;
     System.out.println("Number Of Instantiated Machines: " + realNumberOfMachines);
     int size = workLists.size() / realNumberOfMachines;
     for (int i = 0; i < realNumberOfMachines; i++) {
@@ -78,7 +76,7 @@ public class Injector {
     final ExecutorService pool = Executors.newFixedThreadPool(realNumberOfMachines);
     try {
       for (final Future<Integer> future : pool.invokeAll(workers)) {
-        processed += future.get();
+        report.processed += future.get();
       }
     } catch (ExecutionException ex) {
       System.err.println("Injector executor faced an exception. (ExecutionException)");
@@ -89,7 +87,8 @@ public class Injector {
     }
     pool.shutdown();
     System.out.println(
-        "Received " + totalNumberOfFixes + " fixes and applied " + processed + " number of fixes");
+        "Received " + report.totalNumberOfDistinctFixes + " fixes and applied " + report.processed + " number of fixes");
+    return report;
   }
 
   private ArrayList<WorkList> readFixes() {

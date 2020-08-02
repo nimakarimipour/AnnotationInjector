@@ -15,3 +15,5 @@ gradle-app.setting
 
 .DS_Store
 /testfiles/
+
+/src/main/java/edu/riple/annotationinjector/Main.java

@@ -4,6 +4,7 @@ import static org.junit.Assert.fail;
 
 import edu.riple.annotationinjector.Fix;
 import edu.riple.annotationinjector.Injector;
+import edu.riple.annotationinjector.Report;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import java.io.FileNotFoundException;
@@ -57,7 +58,8 @@ public class InjectorTestHelper {
             .setFixesJsonFilePath(rootPath + "/fix/fixes.json")
             .build();
     writeFixes();
-    injector.start();
+    Report report = injector.start();
+    System.out.println("Report: " + report);
     for (String key : fileMap.keySet()) {
       String srcFile = readFileToString(key);
       String trimmedSrc = srcFile.replace(" ", "").replace("\n", "");
