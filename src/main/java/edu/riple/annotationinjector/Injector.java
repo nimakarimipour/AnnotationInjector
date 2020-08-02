@@ -59,7 +59,7 @@ public class Injector {
     int totalNumberOfFixes = 0;
     for (WorkList workList : workLists) totalNumberOfFixes += workList.getFixes().size();
     System.out.println("NullAway found " + totalNumberOfFixes + " number of fixes");
-    if (mode.equals(MODE.TEST)) {
+    if (mode.equals(MODE.TEST) || numberOfMachines == 1) {
       processed = new InjectorMachine(1, workLists, cleanImports, mode).call();
       System.out.println(
               "Received " + totalNumberOfFixes + " fixes and applied " + processed + " number of fixes");
