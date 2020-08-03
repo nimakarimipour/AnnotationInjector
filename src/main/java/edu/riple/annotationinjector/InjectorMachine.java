@@ -115,8 +115,8 @@ public class InjectorMachine implements Callable<Integer> {
       parser.reset();
       tree = getTree(workList.getUri());
       workList.addContainingAnnotationsToList(addedImports);
-      System.out.println(id + ":Processing " + ASTHelpers.lastName(workList.className()));
       ArrayList<JavaRefactorVisitor> refactors = new ArrayList<>();
+      boolean skipped = false;
       if (!cleanImports) saveImport(tree);
       for (Fix fix : workList.getFixes()) {
         switch (fix.location) {
@@ -137,12 +137,13 @@ public class InjectorMachine implements Callable<Integer> {
         if (refactor == null) continue;
         JavaRefactorVisitor refactorVisitor = refactor.build();
         if (refactorVisitor == null) {
-          System.out.println("Skipped!");
+          skipped = true;
         } else {
           processed++;
           refactors.add(refactorVisitor);
         }
       }
+      log(workList.className(), skipped);
       Change<J.CompilationUnit> changed = null;
       for (JavaRefactorVisitor r : refactors) {
         if (changed == null) changed = tree.refactor().visit(r).fix();
@@ -151,5 +152,14 @@ public class InjectorMachine implements Callable<Integer> {
       if (changed != null) overWriteToFile(changed, workList.getUri());
     }
     return processed;
+  }
+
+  private void log(String className, boolean fail){
+    if(fail) System.out.print("\u001B[31m");
+    else System.out.print("\u001B[32m");
+    System.out.printf("Processing %-50s", ASTHelpers.lastName(className));
+    if (fail) System.out.println("✘ (Skipped)");
+    else System.out.println("\u2713");
+    System.out.print("\u001B[0m");
   }
 }
