@@ -3,6 +3,10 @@ package edu.riple.annotationinjector;
 import org.openrewrite.java.Java8Parser;
 import org.openrewrite.java.JavaParser;
 import org.openrewrite.java.tree.J;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.lang.reflect.Array;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -12,11 +16,53 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Main {
   public static void main(String[] args) {
-    System.out.println("✘");
+    gatherReport();
   }
+
+  private static void gatherReport() {
+    String executablePath = "/Users/nima/Developer/WALA";
+    String executable = "gradlew";
+    String task = "com.ibm.wala.core:build";
+    String command = "" + "cd " + executablePath + " && ./" + executable + " " + task;
+    Process proc;
+    System.out.println("Command " + command);
+    try {
+      proc = Runtime.getRuntime().exec(new String[] {"/bin/sh", "-c", command});
+      String line;
+      if (proc != null) {
+        BufferedReader input = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
+        final String nullAwayErrorMessagePattern = "error:";
+        int totalErrors = 0;
+        int coveredErrors = 0;
+        while ((line = input.readLine()) != null) {
+          if (line.contains(nullAwayErrorMessagePattern)) {
+            totalErrors++;
+            String errorMessage = line.substring(line.indexOf("Away] ") + 6);
+            if (!errorMessage.startsWith("(Covered) ")) {
+//              System.out.println(errorMessage);
+            } else  {
+              System.out.println(errorMessage);
+              ++coveredErrors;
+            }
+          }
+        }
+        input.close();
+        //        System.out.println("SIZE: " + errors.size());
+        System.out.println("Total Errors: " + totalErrors);
+        System.out.println("Covered Errors: " + coveredErrors);
+        System.out.println("Uncovered Errors: " + (totalErrors - coveredErrors));
+      }
+    } catch (Exception e) {
+      System.out.println("Error happened: " + e.getMessage());
+      throw new RuntimeException("Could not run command: " + command + " from gradle");
+    }
+  }
+
 
   private static void testMulti() {
     final List<Callable<Integer>> workers = new ArrayList<>();
