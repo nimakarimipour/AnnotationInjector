@@ -1,6 +1,5 @@
 package edu.riple.annotationinjector.visitors;
 
-import edu.riple.annotationinjector.Fix;
 import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.Statement;
 import java.util.ArrayList;
@@ -41,6 +40,22 @@ public class ASTHelpers {
       if (matchesMethodSignature(methodDecl, signature)) return methodDecl;
     }
     return null;
+  }
+
+  public static J.MethodDecl findMethodDecl(J.CompilationUnit tree, String signature){
+    ArrayList<J.MethodDecl> nominees = new ArrayList<>();
+    for(J.ClassDecl classDecl: tree.getClasses()){
+      for(J statement: classDecl.getBody().getStatements()){
+        if(statement instanceof J.MethodDecl){
+          J.MethodDecl methodDecl = (J.MethodDecl) statement;
+          if(matchesMethodSignature(methodDecl, signature)){
+            nominees.add(methodDecl);
+          }
+        }
+      }
+    }
+    if(nominees.size() != 1) throw new RuntimeException("Will tell you later.");
+    return nominees.get(0);
   }
 
   public static String extractMethodName(String signature) {
@@ -156,14 +171,18 @@ public class ASTHelpers {
     return paramTypes;
   }
 
+  private static String removeComments(String text){
+    return text.replaceAll("(?:/\\*(?:[^*]|(?:\\*+[^*/]))*\\*+/)|(?://.*)","");
+  }
+
   public static String getFullNameOfType(J.VariableDecls variableDecls) {
     int numOfDims = variableDecls.getVars().get(0).getDimensionsAfterName().size();
     if(numOfDims == 0) numOfDims = variableDecls.getDimensionsBeforeName().size();
-    String begin = variableDecls.getTypeExpr().print();
+    String begin = removeComments(variableDecls.getTypeExpr().print());
     int index = 0;
     while (index < begin.length() && (begin.charAt(index) == ' ' || begin.charAt(index) == '\n')) index++;
     begin = begin.substring(index);
-    String fullName = variableDecls.print();
+    String fullName = removeComments(variableDecls.print());
     fullName = fullName.substring(fullName.indexOf(begin));
     StringBuilder ans = new StringBuilder(fullName.substring(0, fullName.lastIndexOf(" ")).replaceAll(" ", "").replace("\n", ""));
     int lastIndex = 0;

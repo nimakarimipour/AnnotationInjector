@@ -1,12 +1,12 @@
 package edu.riple.annotationinjector;
 
+import edu.riple.annotationinjector.visitors.ASTHelpers;
 import org.openrewrite.java.Java8Parser;
 import org.openrewrite.java.JavaParser;
 import org.openrewrite.java.tree.J;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.lang.reflect.Array;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -16,12 +16,21 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class Main {
   public static void main(String[] args) {
-    gatherReport();
+    Java8Parser parser =
+        new Java8Parser.Builder()
+            .logCompilationWarningsAndErrors(false)
+            .relaxedClassTypeMatching(true)
+            .build();
+    List<Path> paths = new ArrayList<>();
+    paths.add(
+        Paths.get(
+            "//Users/nima/Developer/caffeine/caffeine/src/main/java/com/github/benmanes/caffeine/cache/BoundedLocalCache.java"));
+    List<J.CompilationUnit> units = parser.parse(paths);
+//    System.out.println(ASTHelpers.findClassDecl(units.get(0), "com.github.benmanes.caffeine.cache.BoundedLocalCache.BoundedLocalManualCache").getSimpleName());
+    System.out.println(ASTHelpers.findMethodDecl(units.get(0), "getIfPresentQuietly(java.lang.Object,long[])"));
   }
 
   private static void gatherReport() {
@@ -63,7 +72,6 @@ public class Main {
     }
   }
 
-
   private static void testMulti() {
     final List<Callable<Integer>> workers = new ArrayList<>();
     int[] times = {4000, 3000, 1000, 8000};
@@ -81,6 +89,21 @@ public class Main {
     }
     pool.shutdown();
     System.out.println("IDS " + ids);
+  }
+
+  private static void parse() {
+    JavaParser parser =
+            Java8Parser.builder()
+                    .relaxedClassTypeMatching(true)
+                    .logCompilationWarningsAndErrors(false)
+                    .build();
+
+    String uri = "/Users/nima/Developer/WALA/com.ibm.wala.core/src/main/java/com/ibm/wala/analysis/typeInference/TypeInference.java";
+    ArrayList<Path> p = new ArrayList<>();
+    p.add(Paths.get(uri));
+    ArrayList<J.CompilationUnit> trees = (ArrayList<J.CompilationUnit>) parser.parse(p);
+    J.CompilationUnit tree = trees.get(0);
+    System.out.println(tree.print());
   }
 
   static class Worker implements Callable<Integer>{
@@ -106,20 +129,5 @@ public class Main {
       System.out.println("Completed: " + id);
       return id;
     }
-  }
-
-  private static void parse() {
-    JavaParser parser =
-            Java8Parser.builder()
-                    .relaxedClassTypeMatching(true)
-                    .logCompilationWarningsAndErrors(false)
-                    .build();
-
-    String uri = "/Users/nima/Developer/WALA/com.ibm.wala.core/src/main/java/com/ibm/wala/analysis/typeInference/TypeInference.java";
-    ArrayList<Path> p = new ArrayList<>();
-    p.add(Paths.get(uri));
-    ArrayList<J.CompilationUnit> trees = (ArrayList<J.CompilationUnit>) parser.parse(p);
-    J.CompilationUnit tree = trees.get(0);
-    System.out.println(tree.print());
   }
 }
