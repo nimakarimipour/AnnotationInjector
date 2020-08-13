@@ -135,6 +135,17 @@ public class ASTHelpers {
     while (index < signature.length()) {
       char c = signature.charAt(index);
       switch (c) {
+        case '@':
+          while (signature.charAt(index+1) == ' ' && index + 1 < signature.length()) index++;
+          int annot_level = 0;
+          boolean finished = false;
+          while (!finished && index < signature.length()){
+            if(signature.charAt(index) == '(') ++annot_level;
+            if(signature.charAt(index) == ')') --annot_level;
+            if(signature.charAt(index) == ' ' && annot_level == 0) finished = true;
+            index++;
+          }
+          break;
         case '<':
           generic_level++;
           tmp.append(c);

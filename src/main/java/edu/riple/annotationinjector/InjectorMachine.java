@@ -6,7 +6,7 @@ import edu.riple.annotationinjector.visitors.AddMethodParamAnnotation;
 import edu.riple.annotationinjector.visitors.AddMethodReturnAnnotation;
 import edu.riple.annotationinjector.visitors.Refactor;
 import org.openrewrite.Change;
-import org.openrewrite.java.Java8Parser;
+import org.openrewrite.java.Java11Parser;
 import org.openrewrite.java.JavaParser;
 import org.openrewrite.java.JavaRefactorVisitor;
 import org.openrewrite.java.tree.J;
@@ -45,7 +45,7 @@ public class InjectorMachine implements Callable<Integer> {
   }
 
   private void buildParser() {
-    parser = Java8Parser.builder()
+    parser = Java11Parser.builder()
             .relaxedClassTypeMatching(true)
             .logCompilationWarningsAndErrors(false)
             .build();

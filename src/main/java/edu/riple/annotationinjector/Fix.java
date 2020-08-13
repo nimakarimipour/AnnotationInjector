@@ -56,20 +56,22 @@ public class Fix {
         this.inject = inject;
     }
 
-    static Fix createFromJson(JSONObject fix) {
-        String uri = fix.get(KEYS.URI.label).toString();
-        String file = "file:/";
-        if(uri.contains(file))
-            uri = uri.substring(uri.indexOf(file) + file.length());
-        return new Fix(
-                fix.get(KEYS.ANNOTATION.label).toString(),
-                fix.get(KEYS.METHOD.label).toString(),
-                fix.get(KEYS.PARAM.label).toString(),
-                fix.get(KEYS.LOCATION.label).toString(),
-                fix.get(KEYS.CLASS.label).toString(),
-                fix.get(KEYS.PKG.label).toString(),
-                uri,
-                fix.get(KEYS.INJECT.label).toString());
+  static Fix createFromJson(JSONObject fix) {
+    String uri = fix.get(KEYS.URI.label).toString();
+    String file = "file:/";
+    if (uri.contains(file)) uri = uri.substring(uri.indexOf(file) + file.length());
+    /// TODO: 8/13/20 remove this later:
+//    String annotation = "org.checkerframework.checker.nullness.qual.Nullable";
+      String annotation = fix.get(KEYS.ANNOTATION.label).toString();
+    return new Fix(
+        annotation,
+        fix.get(KEYS.METHOD.label).toString(),
+        fix.get(KEYS.PARAM.label).toString(),
+        fix.get(KEYS.LOCATION.label).toString(),
+        fix.get(KEYS.CLASS.label).toString(),
+        fix.get(KEYS.PKG.label).toString(),
+        uri,
+        fix.get(KEYS.INJECT.label).toString());
     }
 
     @Override

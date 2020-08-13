@@ -808,6 +808,40 @@ public class BasicTest {
                 "true"))
         .start();
   }
+
+  @Test
+  public void skip_annotations() {
+    String rootName = "skip_annotations";
+    new InjectorTestHelper()
+            .setRootPath(System.getProperty("user.dir") + "/tests/" + rootName)
+            .addInput(
+                    "Super.java",
+                    "package com.uber;",
+                    "import javax.annotation.Nullable;",
+                    "public class Super {",
+                    "   Object test(@javax.annotation.Nullable Object o) {",
+                    "   }",
+                    "}")
+            .expectOutput(
+                    "Super.java",
+                    "package com.uber;",
+                    "import javax.annotation.Nullable;",
+                    "public class Super {",
+                    "   @Nullable Object test(@javax.annotation.Nullable Object o) {",
+                    "   }",
+                    "}")
+            .addFixes(
+                    new Fix(
+                            "javax.annotation.Nullable",
+                            "test(@javax.annotation.Nullable java.lang.Object)",
+                            "",
+                            "METHOD_RETURN",
+                            "com.uber.Super",
+                            "com.uber",
+                            "Super.java",
+                            "true"))
+            .start();
+  }
 }
 
 // todo: test these later:
