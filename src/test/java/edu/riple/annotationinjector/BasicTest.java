@@ -6,6 +6,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import java.lang.ref.ReferenceQueue;
+import java.lang.ref.WeakReference;
+
 @RunWith(JUnit4.class)
 public class BasicTest {
   InjectorTestHelper injectorTestHelper;
@@ -13,68 +16,68 @@ public class BasicTest {
   @Before
   public void setup() {}
 
-
   @Test
   public void return_nullable_simple() {
     String rootName = "return_nullable_simple";
 
-    injectorTestHelper = new InjectorTestHelper()
-        .setRootPath(System.getProperty("user.dir") + "/tests/" + rootName)
-        .addInput(
-            "Super.java",
-            "package com.uber;",
-            "public class Super {",
-            "   Object test(boolean flag) {",
-            "       return new Object();",
-            "   }",
-            "}")
-        .expectOutput(
-            "Super.java",
-            "package com.uber;",
-            "import javax.annotation.Nullable;",
-            "public class Super {",
-            "   @Nullable",
-            "   Object test(boolean flag) {",
-            "       return new Object();",
-            "   }",
-            "}")
-        .addInput(
-            "com/Superb.java",
-            "package com.uber;",
-            "public class Superb extends Super {",
-            "   Object test(boolean flag) {",
-            "       return new Object();",
-            "   }",
-            "}")
-        .expectOutput(
-            "com/Superb.java",
-            "package com.uber;",
-            "import javax.annotation.Nullable;",
-            "public class Superb extends Super{",
-            "   @Nullable",
-            "   Object test(boolean flag) {",
-            "       return new Object();",
-            "   }",
-            "}")
-        .addFixes(
-            new Fix(
-                "javax.annotation.Nullable",
-                "test(boolean)",
-                "",
-                "METHOD_RETURN",
-                "com.uber.Super",
-                "com.uber",
+    injectorTestHelper =
+        new InjectorTestHelper()
+            .setRootPath(System.getProperty("user.dir") + "/tests/" + rootName)
+            .addInput(
                 "Super.java",
-                "true"),
-            new Fix(
-                "javax.annotation.Nullable",
-                "test(boolean)",
-                "",
-                "METHOD_RETURN",
-                "com.uber.Superb",
-                "com.uber",
+                "package com.uber;",
+                "public class Super {",
+                "   Object test(boolean flag) {",
+                "       return new Object();",
+                "   }",
+                "}")
+            .expectOutput(
+                "Super.java",
+                "package com.uber;",
+                "import javax.annotation.Nullable;",
+                "public class Super {",
+                "   @Nullable",
+                "   Object test(boolean flag) {",
+                "       return new Object();",
+                "   }",
+                "}")
+            .addInput(
                 "com/Superb.java",
-                "true"));
+                "package com.uber;",
+                "public class Superb extends Super {",
+                "   Object test(boolean flag) {",
+                "       return new Object();",
+                "   }",
+                "}")
+            .expectOutput(
+                "com/Superb.java",
+                "package com.uber;",
+                "import javax.annotation.Nullable;",
+                "public class Superb extends Super{",
+                "   @Nullable",
+                "   Object test(boolean flag) {",
+                "       return new Object();",
+                "   }",
+                "}")
+            .addFixes(
+                new Fix(
+                    "javax.annotation.Nullable",
+                    "test(boolean)",
+                    "",
+                    "METHOD_RETURN",
+                    "com.uber.Super",
+                    "com.uber",
+                    "Super.java",
+                    "true"),
+                new Fix(
+                    "javax.annotation.Nullable",
+                    "test(boolean)",
+                    "",
+                    "METHOD_RETURN",
+                    "com.uber.Superb",
+                    "com.uber",
+                    "com/Superb.java",
+                    "true"));
     injectorTestHelper.start();
     injectorTestHelper = null;
   }
@@ -588,6 +591,46 @@ public class BasicTest {
   }
 
   @Test
+  public void param_nullable_with_annotation() {
+    String rootName = "param_nullable_with_annotation";
+
+    new InjectorTestHelper()
+        .setRootPath(System.getProperty("user.dir") + "/tests/" + rootName)
+        .addInput(
+            "WeakKeyReference.java",
+            "package com.uber;",
+            "static class WeakKeyReference<K> extends WeakReference<K> implements InternalReference<K> {",
+            "   private final int hashCode;",
+            "   public WeakKeyReference(@Nullable K key, ReferenceQueue<K> queue) {",
+            "     super(key, queue);",
+            "     hashCode = System.identityHashCode(key);",
+            "   }",
+            "}")
+        .expectOutput(
+            "WeakKeyReference.java",
+            "package com.uber;",
+            "import javax.annotation.Nullable;",
+            "static class WeakKeyReference<K> extends WeakReference<K> implements InternalReference<K> {",
+            "   private final int hashCode;",
+            "   public WeakKeyReference(@Nullable K key, @Nullable ReferenceQueue<K> queue) {",
+            "     super(key, queue);",
+            "     hashCode = System.identityHashCode(key);",
+            "   }",
+            "}")
+        .addFixes(
+            new Fix(
+                "javax.annotation.Nullable",
+                "WeakKeyReference(@org.checkerframework.checker.nullness.qual.Nullable K,java.lang.ref.ReferenceQueue<K>)",
+                "queue",
+                "METHOD_PARAM",
+                "com.uber.WeakKeyReference",
+                "com.uber",
+                "WeakKeyReference.java",
+                "true"))
+        .start();
+  }
+
+  @Test
   public void field_nullable_simple() {
     String rootName = "field_nullable_simple";
 
@@ -810,37 +853,37 @@ public class BasicTest {
   }
 
   @Test
-  public void skip_annotations() {
-    String rootName = "skip_annotations";
+  public void skip_annotations_simple() {
+    String rootName = "skip_annotations_simple";
     new InjectorTestHelper()
-            .setRootPath(System.getProperty("user.dir") + "/tests/" + rootName)
-            .addInput(
-                    "Super.java",
-                    "package com.uber;",
-                    "import javax.annotation.Nullable;",
-                    "public class Super {",
-                    "   Object test(@javax.annotation.Nullable Object o) {",
-                    "   }",
-                    "}")
-            .expectOutput(
-                    "Super.java",
-                    "package com.uber;",
-                    "import javax.annotation.Nullable;",
-                    "public class Super {",
-                    "   @Nullable Object test(@javax.annotation.Nullable Object o) {",
-                    "   }",
-                    "}")
-            .addFixes(
-                    new Fix(
-                            "javax.annotation.Nullable",
-                            "test(@javax.annotation.Nullable java.lang.Object)",
-                            "",
-                            "METHOD_RETURN",
-                            "com.uber.Super",
-                            "com.uber",
-                            "Super.java",
-                            "true"))
-            .start();
+        .setRootPath(System.getProperty("user.dir") + "/tests/" + rootName)
+        .addInput(
+            "Super.java",
+            "package com.uber;",
+            "import javax.annotation.Nullable;",
+            "public class Super {",
+            "   Object test(@javax.annotation.Nullable Object o) {",
+            "   }",
+            "}")
+        .expectOutput(
+            "Super.java",
+            "package com.uber;",
+            "import javax.annotation.Nullable;",
+            "public class Super {",
+            "   @Nullable Object test(@javax.annotation.Nullable Object o) {",
+            "   }",
+            "}")
+        .addFixes(
+            new Fix(
+                "javax.annotation.Nullable",
+                "test(@javax.annotation.Nullable java.lang.Object)",
+                "",
+                "METHOD_RETURN",
+                "com.uber.Super",
+                "com.uber",
+                "Super.java",
+                "true"))
+        .start();
   }
 }
 

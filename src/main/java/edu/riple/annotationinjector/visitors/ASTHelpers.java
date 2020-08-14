@@ -145,6 +145,7 @@ public class ASTHelpers {
             if(signature.charAt(index) == ' ' && annot_level == 0) finished = true;
             index++;
           }
+          index --;
           break;
         case '<':
           generic_level++;
