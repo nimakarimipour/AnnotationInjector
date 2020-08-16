@@ -32,7 +32,15 @@ public class ASTHelpers {
         }
       }
       if(statement instanceof J.MethodDecl){
-        J.ClassDecl res = findInnerClassDecl((J.MethodDecl) statement, name);
+        J.MethodDecl methodDecl = (J.MethodDecl) statement;
+        if(methodDecl.getBody() == null) continue;
+        J.ClassDecl res = null;
+        for (J methodStatement : methodDecl.getBody().getStatements()) {
+          if (methodStatement instanceof J.ClassDecl) {
+            J.ClassDecl innerClass = (J.ClassDecl) methodStatement;
+            if (innerClass.getSimpleName().equals(name)) res = innerClass;
+          }
+        }
         if(res != null) return res;
       }
     }

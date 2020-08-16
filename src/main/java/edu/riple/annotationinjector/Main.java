@@ -27,10 +27,11 @@ public class Main {
     List<Path> paths = new ArrayList<>();
     paths.add(
         Paths.get(
-            "//Users/nima/Developer/caffeine/caffeine/src/main/java/com/github/benmanes/caffeine/cache/BoundedLocalCache.java"));
+            "//Users/nima/Developer/ArtifactEvaluation/NullAwayFixer/Projects/WALA/com.ibm.wala.core/src/main/java/com/ibm/wala/ssa/IR.java"));
     List<J.CompilationUnit> units = parser.parse(paths);
-//    System.out.println(ASTHelpers.findClassDecl(units.get(0), "com.github.benmanes.caffeine.cache.BoundedLocalCache.BoundedLocalManualCache").getSimpleName());
-    System.out.println(ASTHelpers.findMethodDecl(units.get(0), "getIfPresentQuietly(java.lang.Object,long[])"));
+    J.CompilationUnit tree = units.get(0);
+
+    System.out.println(ASTHelpers.findClassDecl(tree, "TwoLevelIterator").getSimpleName());
   }
 
   private static void gatherReport() {
