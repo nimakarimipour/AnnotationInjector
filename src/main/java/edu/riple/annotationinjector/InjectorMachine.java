@@ -119,26 +119,23 @@ public class InjectorMachine implements Callable<Integer> {
       boolean skipped = false;
       if (!cleanImports) saveImport(tree);
       for (Fix fix : workList.getFixes()) {
-        switch (fix.location) {
-          case "CLASS_FIELD":
-            refactor = new AddClassFieldAnnotation(fix, tree);
-            break;
-          case "METHOD_LOCAL_VAR":
-            break;
-          case "METHOD_PARAM":
-            refactor = new AddMethodParamAnnotation(fix, tree);
-            break;
-          case "METHOD_RETURN":
-            refactor = new AddMethodReturnAnnotation(fix, tree);
-            break;
-          default:
-            throw new RuntimeException("Undefined location: " + fix.location);
+          switch (fix.location) {
+            case "CLASS_FIELD":
+              refactor = new AddClassFieldAnnotation(fix, tree);
+              break;
+            case "METHOD_PARAM":
+              refactor = new AddMethodParamAnnotation(fix, tree);
+              break;
+            case "METHOD_RETURN":
+              refactor = new AddMethodReturnAnnotation(fix, tree);
+              break;
+            default:
+              throw new RuntimeException("Undefined location: " + fix.location);
         }
-        if (refactor == null) continue;
-        JavaRefactorVisitor refactorVisitor = refactor.build();
-        if (refactorVisitor == null) {
-          skipped = true;
-        } else {
+        JavaRefactorVisitor refactorVisitor = null;
+        try{ refactorVisitor = refactor.build(); }
+        catch (Exception e){ skipped = true; }
+        if(!skipped){
           processed++;
           refactors.add(refactorVisitor);
         }

@@ -27,11 +27,11 @@ public class Main {
     List<Path> paths = new ArrayList<>();
     paths.add(
         Paths.get(
-            "//Users/nima/Developer/ArtifactEvaluation/NullAwayFixer/Projects/WALA/com.ibm.wala.core/src/main/java/com/ibm/wala/ssa/IR.java"));
+            "//Users/nima/Developer/ArtifactEvaluation/NullAwayFixer/Projects/WALA/com.ibm.wala.core/src/main/java/com/ibm/wala/demandpa/alg/DemandRefinementPointsTo.java"));
     List<J.CompilationUnit> units = parser.parse(paths);
     J.CompilationUnit tree = units.get(0);
 
-    System.out.println(ASTHelpers.findClassDecl(tree, "TwoLevelIterator").getSimpleName());
+    System.out.println(ASTHelpers.findClassDecl(tree, "MyFlowLabelVisitor").getSimpleName());
   }
 
   private static void gatherReport() {
