@@ -31,6 +31,20 @@ public class ASTHelpers {
           if (res != null) return res;
         }
       }
+      if(statement instanceof J.MethodDecl){
+        J.ClassDecl res = findInnerClassDecl((J.MethodDecl) statement, name);
+        if(res != null) return res;
+      }
+    }
+    return null;
+  }
+
+  public static J.ClassDecl findInnerClassDecl(J.MethodDecl methodDecl, String name){
+    for (J statement : methodDecl.getBody().getStatements()) {
+      if (statement instanceof J.ClassDecl) {
+        J.ClassDecl innerClass = (J.ClassDecl) statement;
+        if (innerClass.getSimpleName().equals(name)) return innerClass;
+      }
     }
     return null;
   }
@@ -43,19 +57,21 @@ public class ASTHelpers {
   }
 
   public static J.MethodDecl findMethodDecl(J.CompilationUnit tree, String signature){
-    ArrayList<J.MethodDecl> nominees = new ArrayList<>();
+    J.MethodDecl ans = null;
+    int counter = 0;
     for(J.ClassDecl classDecl: tree.getClasses()){
       for(J statement: classDecl.getBody().getStatements()){
         if(statement instanceof J.MethodDecl){
           J.MethodDecl methodDecl = (J.MethodDecl) statement;
           if(matchesMethodSignature(methodDecl, signature)){
-            nominees.add(methodDecl);
+            counter++;
+            ans = methodDecl;
           }
         }
       }
     }
-    if(nominees.size() != 1) throw new RuntimeException("Will tell you later.");
-    return nominees.get(0);
+    if(counter > 1) ans = null;
+    return ans;
   }
 
   public static String extractMethodName(String signature) {
