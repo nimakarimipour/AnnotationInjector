@@ -1,9 +1,6 @@
 package edu.riple.annotationinjector;
 
-import edu.riple.annotationinjector.visitors.ASTHelpers;
-import org.openrewrite.java.Java8Parser;
 import org.openrewrite.java.JavaParser;
-import org.openrewrite.java.tree.J;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -19,8 +16,8 @@ import java.util.concurrent.Future;
 
 public class Main {
   public static void main(String[] args) {
-    Java8Parser parser =
-        new Java8Parser.Builder()
+    JavaParser parser =
+         JavaParser.fromJavaVersion()
             .logCompilationWarningsAndErrors(false)
             .relaxedClassTypeMatching(true)
             .build();
@@ -28,10 +25,10 @@ public class Main {
     paths.add(
         Paths.get(
             "//Users/nima/Developer/ArtifactEvaluation/NullAwayFixer/Projects/WALA/com.ibm.wala.core/src/main/java/com/ibm/wala/demandpa/alg/DemandRefinementPointsTo.java"));
-    List<J.CompilationUnit> units = parser.parse(paths);
-    J.CompilationUnit tree = units.get(0);
+//    List<J.CompilationUnit> units = parser.parse(paths);
+//    J.CompilationUnit tree = units.get(0);
 
-    System.out.println(ASTHelpers.findClassDecl(tree, "MyFlowLabelVisitor").getSimpleName());
+//    System.out.println(ASTHelpers.findClassDecl(tree, "MyFlowLabelVisitor").getSimpleName());
   }
 
   private static void gatherReport() {
@@ -94,7 +91,7 @@ public class Main {
 
   private static void parse() {
     JavaParser parser =
-            Java8Parser.builder()
+            JavaParser.fromJavaVersion()
                     .relaxedClassTypeMatching(true)
                     .logCompilationWarningsAndErrors(false)
                     .build();
@@ -102,9 +99,9 @@ public class Main {
     String uri = "/Users/nima/Developer/WALA/com.ibm.wala.core/src/main/java/com/ibm/wala/analysis/typeInference/TypeInference.java";
     ArrayList<Path> p = new ArrayList<>();
     p.add(Paths.get(uri));
-    ArrayList<J.CompilationUnit> trees = (ArrayList<J.CompilationUnit>) parser.parse(p);
-    J.CompilationUnit tree = trees.get(0);
-    System.out.println(tree.print());
+//    ArrayList<J.CompilationUnit> trees = (ArrayList<J.CompilationUnit>) parser.parse(p);
+//    J.CompilationUnit tree = trees.get(0);
+//    System.out.println(tree.print());
   }
 
   static class Worker implements Callable<Integer>{

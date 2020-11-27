@@ -12,8 +12,15 @@ repositories {
 
 dependencies {
 
-    implementation group: 'org.openrewrite.maven', name: 'rewrite-maven-plugin', version: '1.1.0'
-    testImplementation group: 'org.openrewrite.maven', name: 'rewrite-maven-plugin', version: '1.1.0'
+    compile "org.slf4j:slf4j-simple:1.7.9"
+    implementation group: 'org.openrewrite', name: 'rewrite-java', version: '6.0.1'
+    testImplementation group: 'org.openrewrite', name: 'rewrite-java', version: '6.0.1'
+
+    runtimeOnly group: 'org.openrewrite', name: 'rewrite-java-8', version: '6.0.1'
+    testImplementation group: 'org.openrewrite', name: 'rewrite-java-8', version: '6.0.1'
+
+    runtimeOnly group: 'org.openrewrite', name: 'rewrite-java-11', version: '6.0.1'
+    testImplementation group: 'org.openrewrite', name: 'rewrite-java-11', version: '6.0.1'
 
     implementation 'com.googlecode.json-simple:json-simple:1.1.1'
     testImplementation 'com.googlecode.json-simple:json-simple:1.1.1'

@@ -9,7 +9,7 @@ public class ModRef {
        AbstractCFG<?, ?> cfg,
        SSAInstruction[] instructions,
        SSAOptions options,
-       @Nullable Map<Integer, ConstantValue> constants)
+   @Nullable Map<Integer, ConstantValue> constants)
        throws AssertionError {
            super(
                method, 

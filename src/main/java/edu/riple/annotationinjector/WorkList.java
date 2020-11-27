@@ -1,7 +1,6 @@
 package edu.riple.annotationinjector;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class WorkList {
   private final String uri;
@@ -25,11 +24,7 @@ public class WorkList {
     return uri;
   }
 
-  public void addContainingAnnotationsToList(List<String> annotsList) {
-    for (Fix fix : fixes) if (!annotsList.contains(fix.annotation)) annotsList.add(fix.annotation);
-  }
-
   public String className(){
-      return fixes.get(0).className;
+    return fixes.get(0).className;
   }
 }

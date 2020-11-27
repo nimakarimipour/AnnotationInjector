@@ -9,78 +9,7 @@ import java.util.List;
   "UnusedVariable",
   "StringSplitter"
 }) // todo: Remove this later, this class is still under construction
-public class ASTHelpers {
-
-  public static J.ClassDecl findClassDecl(J.CompilationUnit tree, String fullName) {
-    String[] path = fullName.split("\\.");
-    for (J.ClassDecl classDecl : tree.getClasses()) {
-      if (classDecl.getSimpleName().equals(path[path.length - 1])) return classDecl;
-      J.ClassDecl innerClass = findInnerClassDecl(classDecl, path[path.length - 1]);
-      if (innerClass != null) return innerClass;
-    }
-    return null;
-  }
-
-  public static J.ClassDecl findInnerClassDecl(J.ClassDecl classDecl, String name) {
-    for (J statement : classDecl.getBody().getStatements()) {
-      if (statement instanceof J.ClassDecl) {
-        J.ClassDecl innerClass = (J.ClassDecl) statement;
-        if (innerClass.getSimpleName().equals(name)) return innerClass;
-        else {
-          J.ClassDecl res = findInnerClassDecl(innerClass, name);
-          if (res != null) return res;
-        }
-      }
-      if(statement instanceof J.MethodDecl){
-        J.MethodDecl methodDecl = (J.MethodDecl) statement;
-        if(methodDecl.getBody() == null) continue;
-        J.ClassDecl res = null;
-        for (J methodStatement : methodDecl.getBody().getStatements()) {
-          if (methodStatement instanceof J.ClassDecl) {
-            J.ClassDecl innerClass = (J.ClassDecl) methodStatement;
-            if (innerClass.getSimpleName().equals(name)) res = innerClass;
-          }
-        }
-        if(res != null) return res;
-      }
-    }
-    return null;
-  }
-
-  public static J.ClassDecl findInnerClassDecl(J.MethodDecl methodDecl, String name){
-    for (J statement : methodDecl.getBody().getStatements()) {
-      if (statement instanceof J.ClassDecl) {
-        J.ClassDecl innerClass = (J.ClassDecl) statement;
-        if (innerClass.getSimpleName().equals(name)) return innerClass;
-      }
-    }
-    return null;
-  }
-
-  public static J.MethodDecl findMethodDecl(J.ClassDecl classDecl, String signature) {
-    for (J.MethodDecl methodDecl : classDecl.getMethods()) {
-      if (matchesMethodSignature(methodDecl, signature)) return methodDecl;
-    }
-    return null;
-  }
-
-  public static J.MethodDecl findMethodDecl(J.CompilationUnit tree, String signature){
-    J.MethodDecl ans = null;
-    int counter = 0;
-    for(J.ClassDecl classDecl: tree.getClasses()){
-      for(J statement: classDecl.getBody().getStatements()){
-        if(statement instanceof J.MethodDecl){
-          J.MethodDecl methodDecl = (J.MethodDecl) statement;
-          if(matchesMethodSignature(methodDecl, signature)){
-            counter++;
-            ans = methodDecl;
-          }
-        }
-      }
-    }
-    if(counter > 1) ans = null;
-    return ans;
-  }
+public class Helper {
 
   public static String extractMethodName(String signature) {
     StringBuilder ans = new StringBuilder();
@@ -207,10 +136,6 @@ public class ASTHelpers {
     return paramTypes;
   }
 
-  private static String removeComments(String text){
-    return text.replaceAll("(?:/\\*(?:[^*]|(?:\\*+[^*/]))*\\*+/)|(?://.*)","");
-  }
-
   public static String getFullNameOfType(J.VariableDecls variableDecls) {
     int numOfDims = variableDecls.getVars().get(0).getDimensionsAfterName().size();
     if(numOfDims == 0) numOfDims = variableDecls.getDimensionsBeforeName().size();
@@ -233,5 +158,9 @@ public class ASTHelpers {
     numOfDims -= count;
     for (int i = 0; i < numOfDims; i++) ans.append("[]");
     return ans.toString();
+  }
+
+  private static String removeComments(String text){
+    return text.replaceAll("(?:/\\*(?:[^*]|(?:\\*+[^*/]))*\\*+/)|(?://.*)","");
   }
 }
