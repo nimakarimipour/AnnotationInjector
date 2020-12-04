@@ -109,7 +109,7 @@ public class InjectorMachine implements Callable<Integer> {
   @Override
   public Integer call() {
     J.CompilationUnit tree;
-    Refactor refactor = null;
+    Refactor refactor;
     for (WorkList workList : workLists) {
       addedImports = new ArrayList<>();
       parser.reset();
