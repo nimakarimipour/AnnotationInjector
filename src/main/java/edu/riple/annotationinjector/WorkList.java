@@ -14,7 +14,8 @@ public class WorkList {
 
   public WorkList(List<Fix> fixes) {
     this.fixes = fixes;
-    uri = "UNDEFINED";
+    assert fixes.size() > 0;
+    uri = fixes.get(0).uri;
   }
 
   public void addFix(Fix newFix) {
