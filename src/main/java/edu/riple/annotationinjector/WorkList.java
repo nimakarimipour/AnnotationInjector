@@ -5,11 +5,16 @@ import java.util.List;
 
 public class WorkList {
   private final String uri;
-  private final ArrayList<Fix> fixes;
+  private final List<Fix> fixes;
 
   public WorkList(String uri) {
     this.uri = uri;
     this.fixes = new ArrayList<>();
+  }
+
+  public WorkList(List<Fix> fixes) {
+    this.fixes = fixes;
+    uri = "UNDEFINED";
   }
 
   public void addFix(Fix newFix) {
@@ -17,7 +22,7 @@ public class WorkList {
     fixes.add(newFix);
   }
 
-  public ArrayList<Fix> getFixes() {
+  public List<Fix> getFixes() {
     return fixes;
   }
 
