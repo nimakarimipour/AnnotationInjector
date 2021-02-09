@@ -13,6 +13,7 @@ public class Fix {
   public final String className;
   public final String pkg;
   public final String inject;
+  public final String reason;
   public String uri;
 
   enum KEYS {
@@ -23,7 +24,8 @@ public class Fix {
     PKG("pkg"),
     URI("uri"),
     INJECT("inject"),
-    ANNOTATION("annotation");
+    ANNOTATION("annotation"),
+    REASON("reason");
     public final String label;
 
     KEYS(String label) {
@@ -44,7 +46,8 @@ public class Fix {
       String className,
       String pkg,
       String uri,
-      String inject) {
+      String inject,
+      String reason) {
     this.annotation = annotation;
     this.method = method;
     this.param = param;
@@ -53,6 +56,7 @@ public class Fix {
     this.pkg = pkg;
     this.uri = uri;
     this.inject = inject;
+    this.reason = reason;
   }
 
   static Fix createFromJson(JSONObject fix) {
@@ -67,7 +71,8 @@ public class Fix {
         fix.get(KEYS.CLASS.label).toString(),
         fix.get(KEYS.PKG.label).toString(),
         uri,
-        fix.get(KEYS.INJECT.label).toString());
+        fix.get(KEYS.INJECT.label).toString(),
+        fix.get(KEYS.REASON.label).toString());
   }
 
   @Override
@@ -96,6 +101,9 @@ public class Fix {
         + '\''
         + ", \n\turi='"
         + uri
+        + '\''
+        + ", \n\treason='"
+        + reason
         + '\''
         + "\n  }\n";
   }
@@ -130,10 +138,11 @@ public class Fix {
     res.put(KEYS.ANNOTATION.label, annotation);
     res.put(KEYS.INJECT.label, inject);
     res.put(KEYS.URI.label, uri);
+    res.put(KEYS.REASON.label, reason);
     return res;
   }
 
   public Fix duplicate() {
-    return new Fix(annotation, method, param, location, className, pkg, uri, inject);
+    return new Fix(annotation, method, param, location, className, pkg, uri, inject, reason);
   }
 }

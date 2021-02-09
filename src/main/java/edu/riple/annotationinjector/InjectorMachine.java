@@ -33,12 +33,9 @@ public class InjectorMachine implements Callable<Integer> {
   private ArrayList<J.Import> imports;
   Injector.MODE mode;
   int processed = 0;
-  private final int id;
 
-  public InjectorMachine(
-      int id, List<WorkList> workLists, boolean cleanImports, Injector.MODE mode) {
+  public InjectorMachine(List<WorkList> workLists, boolean cleanImports, Injector.MODE mode) {
     this.workLists = workLists;
-    this.id = id;
     this.mode = mode;
     this.cleanImports = cleanImports;
     buildParser();
