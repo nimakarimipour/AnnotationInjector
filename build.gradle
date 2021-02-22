@@ -3,7 +3,7 @@ plugins {
     id 'maven'
 }
 
-group 'edu.riple.annotationinjector.riple'
+group 'edu.ucr.cs.riple.annotationinjector'
 version '1.0-SNAPSHOT'
 
 repositories {
