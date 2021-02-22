@@ -1,10 +1,10 @@
-package edu.riple.annotationinjector;
+package edu.ucr.cs.riple.annotationinjector;
 
-import edu.riple.annotationinjector.visitors.ASTHelpers;
-import edu.riple.annotationinjector.visitors.AddClassFieldAnnotation;
-import edu.riple.annotationinjector.visitors.AddMethodParamAnnotation;
-import edu.riple.annotationinjector.visitors.AddMethodReturnAnnotation;
-import edu.riple.annotationinjector.visitors.Refactor;
+import edu.ucr.cs.riple.annotationinjector.visitors.ASTHelpers;
+import edu.ucr.cs.riple.annotationinjector.visitors.AddClassFieldAnnotation;
+import edu.ucr.cs.riple.annotationinjector.visitors.AddMethodParamAnnotation;
+import edu.ucr.cs.riple.annotationinjector.visitors.AddMethodReturnAnnotation;
+import edu.ucr.cs.riple.annotationinjector.visitors.Refactor;
 import org.openrewrite.Change;
 import org.openrewrite.java.Java8Parser;
 import org.openrewrite.java.JavaParser;

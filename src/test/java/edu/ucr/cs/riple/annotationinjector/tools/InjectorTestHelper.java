@@ -1,11 +1,12 @@
-package edu.riple.annotationinjector.tools;
+package edu.ucr.cs.riple.annotationinjector.tools;
 
 import static org.junit.Assert.fail;
 
-import edu.riple.annotationinjector.Fix;
-import edu.riple.annotationinjector.Injector;
-import edu.riple.annotationinjector.Report;
-import edu.riple.annotationinjector.WorkListBuilder;
+
+import edu.ucr.cs.riple.annotationinjector.Fix;
+import edu.ucr.cs.riple.annotationinjector.Injector;
+import edu.ucr.cs.riple.annotationinjector.Report;
+import edu.ucr.cs.riple.annotationinjector.WorkListBuilder;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import java.io.FileNotFoundException;

@@ -1,4 +1,4 @@
-package edu.riple.annotationinjector;
+package edu.ucr.cs.riple.annotationinjector;
 
 import java.util.ArrayList;
 import java.util.List;

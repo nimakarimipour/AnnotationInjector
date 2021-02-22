@@ -1,4 +1,4 @@
-package edu.riple.annotationinjector;
+package edu.ucr.cs.riple.annotationinjector;
 
 import org.json.simple.JSONObject;
 

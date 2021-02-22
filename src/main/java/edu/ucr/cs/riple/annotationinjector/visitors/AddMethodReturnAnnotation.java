@@ -1,7 +1,7 @@
-package edu.riple.annotationinjector.visitors;
+package edu.ucr.cs.riple.annotationinjector.visitors;
 
 
-import edu.riple.annotationinjector.Fix;
+import edu.ucr.cs.riple.annotationinjector.Fix;
 import org.openrewrite.java.AddAnnotation;
 import org.openrewrite.java.JavaRefactorVisitor;
 import org.openrewrite.java.tree.J;
