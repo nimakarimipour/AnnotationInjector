@@ -1,4 +1,4 @@
-package edu.riple.annotationinjector;
+package edu.ucr.cs.riple.annotationinjector;
 
 public class Report {
     public int processed = 0;

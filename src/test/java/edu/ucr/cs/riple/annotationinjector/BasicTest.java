@@ -1,13 +1,10 @@
-package edu.riple.annotationinjector;
+package edu.ucr.cs.riple.annotationinjector;
 
-import edu.riple.annotationinjector.tools.InjectorTestHelper;
+import edu.ucr.cs.riple.annotationinjector.tools.InjectorTestHelper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-
-import java.lang.ref.ReferenceQueue;
-import java.lang.ref.WeakReference;
 
 @RunWith(JUnit4.class)
 public class BasicTest {

@@ -1,4 +1,4 @@
-package edu.riple.annotationinjector.visitors;
+package edu.ucr.cs.riple.annotationinjector.visitors;
 
 import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.Statement;
