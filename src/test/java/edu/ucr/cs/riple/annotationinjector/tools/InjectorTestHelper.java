@@ -53,7 +53,6 @@ public class InjectorTestHelper {
   public void start() {
     Injector injector =
         Injector.builder()
-            .setNumberOfWorkers(1)
             .setMode(Injector.MODE.TEST)
             .setFixesJsonFilePath(rootPath + "/fix/fixes.json")
             .build();

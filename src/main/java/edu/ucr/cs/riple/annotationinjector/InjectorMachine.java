@@ -14,9 +14,8 @@ import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Callable;
 
-public class InjectorMachine implements Callable<Integer> {
+public class InjectorMachine{
 
   List<WorkList> workLists;
   JavaParser parser;
@@ -24,8 +23,7 @@ public class InjectorMachine implements Callable<Integer> {
   Injector.MODE mode;
   int processed = 0;
 
-  public InjectorMachine(
-      int id, List<WorkList> workLists, boolean cleanImports, Injector.MODE mode) {
+  public InjectorMachine(List<WorkList> workLists, boolean cleanImports, Injector.MODE mode) {
     this.workLists = workLists;
     this.mode = mode;
     this.cleanImports = cleanImports;
@@ -49,6 +47,7 @@ public class InjectorMachine implements Callable<Integer> {
       try (Writer writer = Files.newBufferedWriter(Paths.get(uri), Charset.defaultCharset())) {
         writer.write(change.getFixed().print());
         writer.flush();
+        writer.close();
       }
     } catch (IOException e) {
       throw new RuntimeException("Something terrible happened.");
@@ -61,7 +60,6 @@ public class InjectorMachine implements Callable<Integer> {
     return trees.get(0);
   }
 
-  @Override
   public Integer call() {
     J.CompilationUnit tree;
     for (WorkList workList : workLists) {
