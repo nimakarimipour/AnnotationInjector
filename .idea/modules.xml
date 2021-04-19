@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/AnnotationInjector.iml" filepath="$PROJECT_DIR$/.idea/AnnotationInjector.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/annotationinjector.iml" filepath="$PROJECT_DIR$/.idea/modules/annotationinjector.iml" />
     </modules>
   </component>
 </project>
