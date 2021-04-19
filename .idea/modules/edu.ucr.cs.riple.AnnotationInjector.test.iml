@@ -57,5 +57,4 @@
     <orderEntry type="library" scope="RUNTIME" name="Gradle: com.googlecode.javaewah:JavaEWAH:1.1.7" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Gradle: org.latencyutils:LatencyUtils:2.0.3" level="project" />
   </component>
-  <component name="TestModuleProperties" production-module="AnnotationInjector.main" />
 </module>
