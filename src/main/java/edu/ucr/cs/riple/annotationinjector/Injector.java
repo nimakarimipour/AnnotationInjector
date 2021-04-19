@@ -29,7 +29,7 @@ public class Injector {
     for (WorkList workList : workLists)
       report.totalNumberOfDistinctFixes += workList.getFixes().size();
     System.out.println("NullAway found " + report.totalNumberOfDistinctFixes + " number of fixes");
-    report.processed = new InjectorMachine(workLists, cleanImports, mode).call();
+    report.processed = new InjectorMachine(workLists, cleanImports, mode).start();
     System.out.println(
         "Received "
             + report.totalNumberOfDistinctFixes

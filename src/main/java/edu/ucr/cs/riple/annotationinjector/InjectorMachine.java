@@ -20,11 +20,10 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class InjectorMachine implements Callable<Integer> {
+public class InjectorMachine{
 
   List<WorkList> workLists;
   JavaParser parser;
@@ -70,6 +69,7 @@ public class InjectorMachine implements Callable<Integer> {
       try (Writer writer = Files.newBufferedWriter(Paths.get(uri), Charset.defaultCharset())) {
         writer.write(input);
         writer.flush();
+        writer.close();
       }
     } catch (IOException e) {
       throw new RuntimeException("Something terrible happened.");
@@ -103,8 +103,7 @@ public class InjectorMachine implements Callable<Integer> {
     return trees.get(0);
   }
 
-  @Override
-  public Integer call() {
+  public Integer start() {
     J.CompilationUnit tree;
     Refactor refactor;
     for (WorkList workList : workLists) {
