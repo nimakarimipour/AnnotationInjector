@@ -5,6 +5,7 @@ import static org.junit.Assert.fail;
 import edu.ucr.cs.riple.annotationinjector.Fix;
 import edu.ucr.cs.riple.annotationinjector.Injector;
 import edu.ucr.cs.riple.annotationinjector.Report;
+import edu.ucr.cs.riple.annotationinjector.WorkListBuilder;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import java.io.FileNotFoundException;
@@ -54,10 +55,9 @@ public class InjectorTestHelper {
     Injector injector =
         Injector.builder()
             .setMode(Injector.MODE.TEST)
-            .setFixesJsonFilePath(rootPath + "/fix/fixes.json")
             .build();
     writeFixes();
-    Report report = injector.start();
+    Report report = injector.start(new WorkListBuilder(rootPath + "/fix/fixes.json").getWorkLists());
     System.out.println("Report: " + report);
     for (String key : fileMap.keySet()) {
       String srcFile = readFileToString(key);

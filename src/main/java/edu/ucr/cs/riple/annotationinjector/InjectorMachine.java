@@ -60,7 +60,7 @@ public class InjectorMachine{
     return trees.get(0);
   }
 
-  public Integer call() {
+  public Integer start() {
     J.CompilationUnit tree;
     for (WorkList workList : workLists) {
       parser.reset();
