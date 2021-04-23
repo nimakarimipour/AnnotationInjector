@@ -55,7 +55,7 @@ public class Fix {
     this.inject = inject;
   }
 
-  static Fix createFromJson(JSONObject fix) {
+  public static Fix createFromJson(JSONObject fix) {
     String uri = fix.get(KEYS.URI.label).toString();
     String file = "file:/";
     if (uri.contains(file)) uri = uri.substring(uri.indexOf(file) + file.length());
