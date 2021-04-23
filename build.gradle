@@ -20,10 +20,10 @@ dependencies {
     implementation group: 'org.openrewrite', name: 'rewrite-java', version: "${rewrite}"
     testImplementation group: 'org.openrewrite', name: 'rewrite-java', version: "${rewrite}"
 
-    runtimeOnly group: 'org.openrewrite', name: 'rewrite-java-8', version: "${rewrite}"
+    compile group: 'org.openrewrite', name: 'rewrite-java-8', version: "${rewrite}"
     testImplementation group: 'org.openrewrite', name: 'rewrite-java-8', version: "${rewrite}"
 
-    runtimeOnly group: 'org.openrewrite', name: 'rewrite-java-11', version: "${rewrite}"
+    compile group: 'org.openrewrite', name: 'rewrite-java-11', version: "${rewrite}"
     testImplementation group: 'org.openrewrite', name: 'rewrite-java-11', version: "${rewrite}"
 
     implementation 'com.googlecode.json-simple:json-simple:1.1.1'
